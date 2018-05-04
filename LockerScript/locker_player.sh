@@ -135,71 +135,51 @@ function play_random_file
 	done
 }
 
-function play_something_else
+function play_random_actor
 {
-	PS3="[Play Submenu] Enter your choice: "
-	select item in \
-		"Play movie based on actor" \
-		"Go to main menu"
+	# create list of actors
+	echo -n > "$TEMP_DIR/list_actor.tmp"
+	echo -n > "$TEMP_DIR/list_actor"
+	while read line 
 	do
-		case "$item" in
-			"Play movie based on actor")
-				# create list of actors
-				echo -n > "$TEMP_DIR/list_actor"
-				while read line 
-				do
-					actor=`echo "$line" | awk -F, '{print $4}'`
-					[ "$actor" == "actor" ] && continue # skip the first line
-					grep "$actor" "$TEMP_DIR/list_actor" > /dev/null
-					[ $? -ne 0 ] && echo "$actor" >> "$TEMP_DIR/list_actor"
-				done < "$DATABASE"
-				unset actor
-				
-				# creating menu of actors
-				let cnt=1
-				while read line 
-				do
-					echo "$cnt) $line"
-					let pause=cnt%20
-					if [ $pause -eq 0 ] 
-					then
-						read -p "Select actor(0 to continue): " < /dev/tty
-						if [ $REPLY != "0" ]
-						then
-							actor="$REPLY"
-							break;
-						fi
-					fi
-					let cnt++
-				done < "$TEMP_DIR/list_actor"
-				if [ -z $actor ]
-				then
-					read -p "Select actor: " < /dev/tty
-					actor="$REPLY"
-				fi
-				
-				# getting the actor name
-				let cnt=1
-				while read line 
-				do
-					if [ $actor -eq $cnt ] 
-					then
-						actor="$line"
-						break
-					fi
-					let cnt++
-				done < "$TEMP_DIR/list_actor"
-				echo "Selected actor is: $actor"
-				
-				# play a random movie for the actor
-				play_random_file "actor" "$actor"
-				
-				break
-				;;
-				
-			"Go to main menu")
-				break
-				;;
+		actor=`echo "$line" | awk -F, '{print $4}'`
+		[ "$actor" == "actor" ] && continue # skip the first line
+		grep "$actor" "$TEMP_DIR/list_actor.tmp" > /dev/null
+		[ $? -ne 0 ] && echo "$actor" >> "$TEMP_DIR/list_actor.tmp"
+	done < "$DATABASE"
+	unset actor
+	
+	# sort alphabetically
+	sort "$TEMP_DIR/list_actor.tmp" > "$TEMP_DIR/list_actor"
+	rm -f "$TEMP_DIR/list_actor.tmp"
+	
+	while true
+	do
+		# select a random actor
+		num_actors=`wc -l "$TEMP_DIR/list_actor" | cut -d' ' -f1`
+		let play_actor=$RANDOM%$num_actors+1
+		actor=`sed -n ${play_actor}p "$TEMP_DIR/list_actor"`
+		
+		# play the actor
+		echo "Selected actor is: $actor"
+		read -p "Press 0 to play, 1 to try a new actor or 5 to goto main menu: "
+		case $REPLY in
+		0)
+			play_random_file "actor" "$actor"
+			break
+			;;
+
+		1)
+			continue
+			;;
+			
+		5)
+			break
+			;;
+			
+		*)
+			break
+			;;
 		esac
 	done
 }
@@ -734,7 +714,7 @@ function main
 		select item in \
 			"Play a random file" \
 			"Play a high rated movie" \
-			"Play something else" \
+			"Play a random Actor" \
 			"Fix movie folder" \
 			"Refresh database" \
 			"Copy files to external media" \
@@ -754,9 +734,9 @@ function main
 					break
 					;;
 
-				"Play something else")
+				"Play a random Actor")
 					[ -f "$DATABASE" ] || { echo "**ERROR** Database file does not exist"; continue; }
-					play_something_else
+					play_random_actor
 					break
 					;;
 
