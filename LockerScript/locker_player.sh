@@ -17,7 +17,7 @@ function change_field # param = title
 
 function menu_postplay	# parameter is file path
 {
-	if [ $# -ne 1 ]
+	if [ $# -lt 1 ]
 	then
 		echo "**ERROR** Please pass the filename as parameter to $FUNCNAME"
 		exit
@@ -36,7 +36,7 @@ function menu_postplay	# parameter is file path
 	do
 		case "$item" in
 			"Play another movie")
-				play_random_file
+				play_random_file "$2" "$3"
 				break
 				;;
 				
@@ -75,6 +75,7 @@ function menu_postplay	# parameter is file path
 }
 
 # optional parameter rating. if set only high rated movies will be played.
+# optional parameter "actor" and actor name.
 function play_random_file
 {
 	db_calculate_max_id
@@ -116,7 +117,7 @@ function play_random_file
 			let playcount=`db_get "$title" "playcount"`
 			let playcount++
 			db_update "$title" "playcount=$playcount"
-			menu_postplay "$file"
+			menu_postplay "$file" "$1" "$2"
 			break
 			;;
 
