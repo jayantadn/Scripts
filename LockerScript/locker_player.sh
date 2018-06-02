@@ -76,16 +76,21 @@ function menu_postplay	# parameter is file path
 
 # optional parameter rating. if set only high rated movies will be played.
 # optional parameter "actor" and actor name.
+# optional parameter "db" and alternate database.
 function play_random_file
 {
 	db_calculate_max_id
+	
+	db="$DATABASE"
+	max_id=`wc -l "$DATABASE" | cut -d' ' -f1`
+	let max_id--
 	
 	while true
 	do
 		let play_id=$RANDOM%$max_id+1
 		
-		file=$MOVIE_DIR/`awk -v awk_play_id=$play_id 'BEGIN{FS=","} $1 == awk_play_id {print $7}' "$DATABASE"`
-		title=`awk -v awk_play_id=$play_id 'BEGIN{FS=","} $1 == awk_play_id {print $6}' "$DATABASE"`
+		file=$MOVIE_DIR/`awk -v awk_play_id=$play_id 'BEGIN{FS=","} $1 == awk_play_id {print $7}' "$db"`
+		title=`awk -v awk_play_id=$play_id 'BEGIN{FS=","} $1 == awk_play_id {print $6}' "$db"`
 		
 		# skip the movies marked for delete or split
 		delete=`db_get "$title" "delete"`
@@ -107,7 +112,7 @@ function play_random_file
 			$1 == awk_play_id {
 				printf "\n\nThe following file will be played: \n Actor = %s \n Title = %s \n Category = %s \n Rating = %s \n\n ", $4, $6, $5, $2;
 			}
-		' "$DATABASE"
+		' "$db"
 
 		# ask whether to play and launch the player
 		read -p "Press 0 to play, 1 to try a new file or 5 to goto main menu: "
