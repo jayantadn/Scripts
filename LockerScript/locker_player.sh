@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 dir=`echo $0 | awk -F/ '{ for(i=1; i<NF; i++) printf "%s/", $i }'`
 source "$dir"libDb.sh
 
@@ -171,7 +173,16 @@ function play_random_actor
 		read -p "Press 0 to play, 1 to try a new actor or 5 to goto main menu: "
 		case $REPLY in
 		0)
-			play_random_file "actor" "$actor"
+			# create database of selected actor
+			echo -n > "$TEMP_DIR/db_actor.csv"
+			while read line 
+			do
+				a=`echo "$line" | awk -F, '{print $4}'`
+				[ "$a" == "actor" ] && continue # skip the first line
+				[ "$a" == "$actor" ] && echo "$line" >> "$TEMP_DIR/db_actor.csv"
+			done < "$DATABASE"
+			unset actor
+			# play_random_file "actor" "$actor"
 			break
 			;;
 
@@ -749,11 +760,18 @@ function menu_other
 	echo
 	PS3="[Main Menu] Enter your choice: "
 	select item in \
+		"Copy files to external media" \
 		"Backup high rated movies" \
 		"Sync database from external media" \
 		"Go back to main menu" 
 	do
 		case $item in
+		"Copy files to external media")
+			[ -f "$DATABASE" ] || { echo "**ERROR** Database file does not exist"; continue; }
+			copy_files
+			break
+			;;	
+		
 		"Backup high rated movies")
 			backup_movies
 			break
@@ -795,11 +813,10 @@ function main
 		select item in \
 			"Play a random file" \
 			"Play a high rated movie" \
-			"Play a random Actor" \
+			"Play a random actor" \
 			"Play something else" \
 			"Fix movie folder" \
 			"Refresh database" \
-			"Copy files to external media" \
 			"Other options" \
 			"Exit" 
 		do
@@ -816,7 +833,7 @@ function main
 					break
 					;;
 
-				"Play a random Actor")
+				"Play a random actor")
 					[ -f "$DATABASE" ] || { echo "**ERROR** Database file does not exist"; continue; }
 					play_random_actor
 					break
@@ -838,12 +855,6 @@ function main
 					break
 					;;
 					
-				"Copy files to external media")
-					[ -f "$DATABASE" ] || { echo "**ERROR** Database file does not exist"; continue; }
-					copy_files
-					break
-					;;
-
 				"Other options")
 					[ -f "$DATABASE" ] || { echo "**ERROR** Database file does not exist"; continue; }
 					menu_other
