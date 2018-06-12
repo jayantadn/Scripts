@@ -83,7 +83,12 @@ function play_random_file
 {
 	db_calculate_max_id
 	
-	db="$DATABASE"
+	if [ "$1" == "db" ]
+	then
+		db="$2"
+	else
+		db="$DATABASE"
+	fi
 	max_id=`wc -l "$DATABASE" | cut -d' ' -f1`
 	let max_id--
 	
@@ -178,11 +183,16 @@ function play_random_actor
 			while read line 
 			do
 				a=`echo "$line" | awk -F, '{print $4}'`
-				[ "$a" == "actor" ] && continue # skip the first line
-				[ "$a" == "$actor" ] && echo "$line" >> "$TEMP_DIR/db_actor.csv"
+				[ "$a" == "actor" ] && echo "$line" >> "$TEMP_DIR/db_actor.csv"
+				if [ "$a" == "$actor" ] 
+				then
+					echo "$line" >> "$TEMP_DIR/db_actor.csv"
+					title=`echo "$line" | awk 'BEGIN{FS="/"} {print $NF}'`
+				fi
 			done < "$DATABASE"
+			serialize_id "$TEMP_DIR/db_actor.csv"
+			play_random_file "db" "$TEMP_DIR/db_actor.csv"
 			unset actor
-			# play_random_file "actor" "$actor"
 			break
 			;;
 
@@ -598,9 +608,17 @@ function refresh_db
 	update_rating_from_filename
 }
 
+# optional parameter db
 function serialize_id
 {
 	echo "Serializing indices"
+	
+	if [ $# -eq 1 ]
+	then
+		dest="$1"
+	else
+		dest="$DATABASE"
+	fi
 	
 	awk -F, '{
 		if( cnt == 0 ) printf "index"
@@ -608,9 +626,9 @@ function serialize_id
 		for(i=2; i<=NF; i++) printf ",%s", $i;
 		printf "\n";
 		cnt++;
-	}' "$DATABASE" > "$TEMP_DIR/db_serial.csv"
+	}' "$dest" > "$TEMP_DIR/db_serial.csv"
 	
-	cp -f "$TEMP_DIR/db_serial.csv" "$DATABASE"
+	cp -f "$TEMP_DIR/db_serial.csv" "$dest"
 }
 
 function remove_non_existent_files

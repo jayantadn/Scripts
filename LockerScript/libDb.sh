@@ -10,9 +10,6 @@ function db_calculate_max_id
 	unset line
 	
 	let max_id--
-	
-	echo "Total number of movies: $max_id"
-	echo "Total movies played: $play_cnt"
 }
 
 function db_touch # param = (opt) file path
@@ -77,7 +74,6 @@ function db_add_new_files
 
 function db_update # parameters are title, field=value, (opt)filepath
 {
-	# $dest is not being used atm. but may be useful in future.
 	if [ $# -eq 2 ]
 	then
 		dest="$DATABASE"
@@ -99,7 +95,7 @@ function db_update # parameters are title, field=value, (opt)filepath
 		echo "Updating $field to $value for $1"
 	fi
 	
-	read firstline < "$DATABASE"
+	read firstline < "$dest"
 	fieldnum=`echo $firstline | awk -v awk_field=$field -F, '{ for(i=1; i<=NF; i++) if( $i == awk_field ) print i }'`
 	
 	awk -v awk_title="$1" -v awk_fieldnum=$fieldnum -v awk_value="$value" -F, '{
@@ -112,9 +108,9 @@ function db_update # parameters are title, field=value, (opt)filepath
 		}
 		else
 			print $0
-	}' "$DATABASE" > "$TEMP_DIR/db_update.csv"
+	}' "$dest" > "$TEMP_DIR/db_update.csv"
 	
-	mv -f "$TEMP_DIR/db_update.csv" "$DATABASE"
+	mv -f "$TEMP_DIR/db_update.csv" "$dest"
 }
 
 function db_get # param = title, field
