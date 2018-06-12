@@ -150,28 +150,18 @@ function play_random_file
 
 function play_random_actor
 {
-	# create list of actors
-	echo -n > "$TEMP_DIR/list_actor.tmp"
-	echo -n > "$TEMP_DIR/list_actor"
-	while read line 
-	do
-		actor=`echo "$line" | awk -F, '{print $4}'`
-		[ "$actor" == "actor" ] && continue # skip the first line
-		grep "$actor" "$TEMP_DIR/list_actor.tmp" > /dev/null
-		[ $? -ne 0 ] && echo "$actor" >> "$TEMP_DIR/list_actor.tmp"
-	done < "$DATABASE"
-	unset actor
-	
-	# sort alphabetically
-	sort "$TEMP_DIR/list_actor.tmp" > "$TEMP_DIR/list_actor"
-	rm -f "$TEMP_DIR/list_actor.tmp"
-	
+	if ! [ -f "$CONFIG_DIR/list_actor" ]
+	then
+		echo "**ERROR** List of actors not found"
+		return
+	fi
+
 	while true
 	do
 		# select a random actor
-		num_actors=`wc -l "$TEMP_DIR/list_actor" | cut -d' ' -f1`
+		num_actors=`wc -l "$CONFIG_DIR/list_actor" | cut -d' ' -f1`
 		let play_actor=$RANDOM%$num_actors+1
-		actor=`sed -n ${play_actor}p "$TEMP_DIR/list_actor"`
+		actor=`sed -n ${play_actor}p "$CONFIG_DIR/list_actor"`
 		
 		# play the actor
 		echo "Selected actor is: $actor"
@@ -556,6 +546,26 @@ function list_files
 	IFS=' '
 }
 
+function list_actors {
+	echo "Creating list of actors"
+
+	# create list of actors
+	echo -n > "$TEMP_DIR/list_actor.tmp"
+	echo -n > "$CONFIG_DIR/list_actor"
+	while read line 
+	do
+		actor=`echo "$line" | awk -F, '{print $4}'`
+		[ "$actor" == "actor" ] && continue # skip the first line
+		grep "$actor" "$TEMP_DIR/list_actor.tmp" > /dev/null
+		[ $? -ne 0 ] && echo "$actor" >> "$TEMP_DIR/list_actor.tmp"
+	done < "$DATABASE"
+	unset actor
+	
+	# sort alphabetically
+	sort "$TEMP_DIR/list_actor.tmp" > "$CONFIG_DIR/list_actor"
+	rm -f "$TEMP_DIR/list_actor.tmp"
+}
+
 function path_correction
 {
 	echo "Fixing improper path names"
@@ -606,6 +616,7 @@ function refresh_db
 	remove_non_existent_files
 	update_actor_name
 	update_rating_from_filename
+	list_actors
 }
 
 # optional parameter db
