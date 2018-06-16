@@ -152,8 +152,7 @@ function play_random_actor
 {
 	if ! [ -f "$CONFIG_DIR/list_actor" ]
 	then
-		echo "**ERROR** List of actors not found"
-		return
+		refresh_db
 	fi
 
 	while true
@@ -168,19 +167,9 @@ function play_random_actor
 		read -p "Press 0 to play, 1 to try a new actor or 5 to goto main menu: "
 		case $REPLY in
 		0)
-			# create database of selected actor
-			echo -n > "$TEMP_DIR/db_actor.csv"
-			while read line 
-			do
-				a=`echo "$line" | awk -F, '{print $4}'`
-				[ "$a" == "actor" ] && echo "$line" >> "$TEMP_DIR/db_actor.csv"
-				if [ "$a" == "$actor" ] 
-				then
-					echo "$line" >> "$TEMP_DIR/db_actor.csv"
-					title=`echo "$line" | awk 'BEGIN{FS="/"} {print $NF}'`
-				fi
-			done < "$DATABASE"
-			serialize_id "$TEMP_DIR/db_actor.csv"
+			db_touch "$TEMP_DIR/db_actor.csv"
+            grep "$actor" "$DATABASE" >> "$TEMP_DIR/db_actor.csv"	
+            serialize_id "$TEMP_DIR/db_actor.csv"	
 			play_random_file "db" "$TEMP_DIR/db_actor.csv"
 			unset actor
 			break
