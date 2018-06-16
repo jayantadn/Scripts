@@ -77,19 +77,17 @@ function menu_postplay	# parameter is file path
 }
 
 # optional parameter rating. if set only high rated movies will be played.
-# optional parameter "actor" and actor name.
 # optional parameter "db" and alternate database.
 function play_random_file
 {
-	db_calculate_max_id
-	
 	if [ "$1" == "db" ]
 	then
 		db="$2"
 	else
 		db="$DATABASE"
 	fi
-	max_id=`wc -l "$DATABASE" | cut -d' ' -f1`
+	
+	let max_id=`wc -l "$db" | cut -d' ' -f1`
 	let max_id--
 	
 	while true
@@ -105,13 +103,12 @@ function play_random_file
 		[ "$delete" != "0" -o "$split" != "0" ] && continue
 
 		# filtering movies based on rating
-		rating=`db_get "$title" "rating"`
-		[ "$1" == "rating" ] && [ $rating -lt 5 ] && continue
+		if [ "$1" == "rating" ]
+		then
+			rating=`db_get "$title" "rating"`
+			[ $rating -lt 5 ] && continue
+		fi
 
-		# filtering movies based on actor
-		actor=`db_get "$title" "actor"`
-		[ "$1" == "actor" ] && [ "$actor" != "$2" ] && continue
-		
 		# displaying info about the movie to be played
 		awk -v awk_play_id=$play_id '
 			BEGIN{FS=","} 
@@ -474,7 +471,7 @@ function copy_files
 	fi
 	echo "Destination is $DEST_DIR"
 	
-	db_calculate_max_id
+	max_id=`wc -l "$DATABASE" | cut -d' ' -f1`
 	
 	let cnt=0
 	while true

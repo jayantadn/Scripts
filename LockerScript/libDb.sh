@@ -1,17 +1,3 @@
-function db_calculate_max_id
-{
-	let max_id=0
-	let play_cnt=0
-	while read line
-	do
-		let max_id++
-		[ `echo "$line" | cut -d',' -f3` != "0" ] && let play_cnt++
-	done < "$DATABASE"
-	unset line
-	
-	let max_id--
-}
-
 function db_touch # param = (opt) file path
 {
 	if [ $# -eq 0 ]
