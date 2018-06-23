@@ -43,7 +43,7 @@ function db_add_new_files
 	else
 		echo "Database file already exists"
 		echo "Updating database"
-		db_calculate_max_id
+		let max_id=`wc -l "$DATABASE" | cut -d' ' -f1` && let max_id--
 		while read line
 		do
 			title=`echo "$line" | awk 'BEGIN { FS="/" } {print $NF}'`
@@ -122,5 +122,4 @@ function db_remove # param = rel_path
 	
 	mv -f "$TEMP_DIR/db_remove.csv" "$DATABASE"
 }
-
 

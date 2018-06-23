@@ -119,7 +119,7 @@ function play_random_file
 		' "$db"
 
 		# ask whether to play and launch the player
-		read -p "Press 0 to play, 1 to try a new file or 5 to goto main menu: "
+		read -p "Press 0 to play, 1 to try a new file or 9 to goto main menu: "
 		case $REPLY in
 		0)
 			"$PLAYER" "$file"
@@ -134,7 +134,7 @@ function play_random_file
 			continue
 			;;
 			
-		5)
+		9)
 			break
 			;;
 			
@@ -161,7 +161,7 @@ function play_random_actor
 		
 		# play the actor
 		echo "Selected actor is: $actor"
-		read -p "Press 0 to play, 1 to try a new actor or 5 to goto main menu: "
+		read -p "Press 0 to play, 1 to try a new actor or 9 to goto main menu: "
 		case $REPLY in
 		0)
 			db_touch "$TEMP_DIR/db_actor.csv"
@@ -176,7 +176,7 @@ function play_random_actor
 			continue
 			;;
 			
-		5)
+		9)
 			break
 			;;
 			
@@ -191,68 +191,9 @@ function play_something_else
 {
 	PS3="[Play Submenu] Enter your choice: "
 	select item in \
-		"Play movie based on actor" \
 		"Go to main menu"
 	do
 		case "$item" in
-			"Play movie based on actor")
-				# create list of actors
-				echo -n > "$TEMP_DIR/list_actor.tmp"
-				echo -n > "$TEMP_DIR/list_actor"
-				while read line 
-				do
-					actor=`echo "$line" | awk -F, '{print $4}'`
-					[ "$actor" == "actor" ] && continue # skip the first line
-					grep "$actor" "$TEMP_DIR/list_actor.tmp" > /dev/null
-					[ $? -ne 0 ] && echo "$actor" >> "$TEMP_DIR/list_actor.tmp"
-				done < "$DATABASE"
-				unset actor
-				
-				# sort alphabetically
-				sort "$TEMP_DIR/list_actor.tmp" > "$TEMP_DIR/list_actor"
-				rm -f "$TEMP_DIR/list_actor.tmp"
-				
-				# creating menu of actors
-				let cnt=1
-				while read line 
-				do
-					echo "$cnt) $line"
-					let pause=cnt%20
-					if [ $pause -eq 0 ] 
-					then
-						read -p "Select actor(0 to continue): " < /dev/tty
-						if [ $REPLY != "0" ]
-						then
-							actor="$REPLY"
-							break;
-						fi
-					fi
-					let cnt++
-				done < "$TEMP_DIR/list_actor"
-				if [ -z $actor ]
-				then
-					read -p "Select actor: " < /dev/tty
-					actor="$REPLY"
-				fi
-				
-				# getting the actor name
-				let cnt=1
-				while read line 
-				do
-					if [ $actor -eq $cnt ] 
-					then
-						actor="$line"
-						break
-					fi
-					let cnt++
-				done < "$TEMP_DIR/list_actor"
-				echo "Selected actor is: $actor"
-				
-				# play a random movie for the actor
-				play_random_file "actor" "$actor"
-				
-				break
-				;;
 				
 			"Go to main menu")
 				break
@@ -731,11 +672,8 @@ function backup_movies
 
 function sync_db
 {
-    echo "Syncing database from external media"
-    
     read -p "Enter location where to copy from: "
-    filename=`basename $REPLY`
-    [ "$filename" != "database.csv" ] && { echo "**ERROR** Invalid file"; return; }
+    filename=`basename "$REPLY"`
     [ -f "$REPLY" ] || { echo "**ERROR** Invalid file"; return; }
     
 	while read line
@@ -749,6 +687,10 @@ function sync_db
         delete=`echo "$line" | awk -F, '{ print $9 }'`
         
         [ "$title" == "title" ] && continue # skip the first line
+		
+		# check if the movie exist in database. else skip
+		grep "$title" "$DATABASE" > /dev/null
+		[ $? -ne 0 ] && continue
         
         cur_rating=`db_get "$title" "rating"`
         [ "$cur_rating" != "$rating" ] && db_update "$title" "rating=$rating"
