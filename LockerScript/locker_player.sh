@@ -772,8 +772,8 @@ function main
 			"Play a high rated movie" \
 			"Play a random actor" \
 			"Play something else" \
-			"Fix movie folder" \
 			"Refresh database" \
+			"Fix movie folder" \
 			"Other options" \
 			"Exit" 
 		do
