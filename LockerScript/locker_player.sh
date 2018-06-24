@@ -79,7 +79,7 @@ function menu_postplay	# parameter is file path
 # optional parameter rating. if set only high rated movies will be played.
 # optional parameter "db" and alternate database.
 function play_random_file
-{
+{ 
 	if [ "$1" == "db" ]
 	then
 		db="$2"
@@ -673,9 +673,9 @@ function backup_movies
 function sync_db
 {
     read -p "Enter location where to copy from: "
-    filename=`basename "$REPLY"`
     [ -f "$REPLY" ] || { echo "**ERROR** Invalid file"; return; }
     
+	echo "Syncing database"
 	while read line
 	do
         title=`echo "$line" | awk -F, '{ print $6 }'`
@@ -683,8 +683,8 @@ function sync_db
         playcount=`echo "$line" | awk -F, '{ print $3 }'`
         actor=`echo "$line" | awk -F, '{ print $4 }'`
         category=`echo "$line" | awk -F, '{ print $5 }'`
-        split=`echo "$line" | awk -F, '{ print $8 }'`
-        delete=`echo "$line" | awk -F, '{ print $9 }'`
+        delete=`echo "$line" | awk -F, '{ print $8 }'`
+		split=`echo "$line" | awk -F, '{ print $9 }'`
         
         [ "$title" == "title" ] && continue # skip the first line
 		
@@ -705,11 +705,19 @@ function sync_db
         cur_category=`db_get "$title" "category"`
         [ "$cur_category" != "$category" ] && db_update "$title" "category=$category"
         
-        [ "0" != "$split" ] && db_update "$title" "split=$split"
-
         [ "0" != "$delete" ] && db_update "$title" "delete=$delete"
+		
+		[ "0" != "${split:0:1}" ] && db_update "$title" "split=${split:0:1}"
     done < "$REPLY"
     
+}
+
+function show_stats {
+	echo
+	echo "Total number of movies: " `wc -l "$DATABASE" | cut -d' ' -f1`
+	echo "Number of movies played: " `awk -F, '{ if( 0 < $3 ) sum++ } END{ print --sum } ' "$DATABASE"` # --sum to skip the first line
+	echo "Number of high rated movies: " `awk -F, '{ if( 3 < $2 ) sum++ } END{ print --sum } ' "$DATABASE"` # --sum to skip the first line
+	echo
 }
 
 function menu_other
@@ -717,13 +725,19 @@ function menu_other
 	echo
 	PS3="[Main Menu] Enter your choice: "
 	select item in \
+		"Show statistics" \
 		"Copy files to external media" \
 		"Backup high rated movies" \
 		"Sync database from external media" \
 		"Go back to main menu" 
 	do
 		case $item in
-		"Copy files to external media")
+			"Show statistics")
+			show_stats
+			break
+			;;	
+
+			"Copy files to external media")
 			[ -f "$DATABASE" ] || { echo "**ERROR** Database file does not exist"; continue; }
 			copy_files
 			break
