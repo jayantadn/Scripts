@@ -1,2 +1,0 @@
-# LockerDJ
-folder locking app
