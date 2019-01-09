@@ -13,3 +13,4 @@ set new=!new:\=/!
 rem copy to clipboard
 echo|set /p=!new!| clip
 echo copied to clipboard: !new!
+
