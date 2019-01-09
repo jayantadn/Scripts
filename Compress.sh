@@ -1,5 +1,5 @@
-echo "Setting global variables"
 ZIP="T:/ProgramFiles/7-ZipPortable/App/7-Zip64/7zG.exe"
+BACKUP_DEST="X:/Backup"
 
 echo "Checking parameters"
 [ $# -lt 2 ] && echo "ERROR: insufficient parameters" && exit
@@ -13,9 +13,8 @@ if [ $# -eq 1 ]
 then
 	TARGET="$1.zip"
 else
-	dir=`echo "$1" | awk 'BEGIN { FS="\\\\" } { print $(NF-1) }'`
-	TARGET=`echo "$1" | awk 'BEGIN { FS="\\\\"; ORS="\\\\" } { for(i=1; i<NF; i++) print $i}'`
-	TARGET=${TARGET}${dir}.zip
+	parentdir=`echo "$1" | awk 'BEGIN { FS="\\\\" } { print $(NF-1) }'`
+	TARGET=`echo "$1" | awk 'BEGIN { FS="\\\\"; ORS="\\\\" } { for(i=1; i<NF; i++) print $i}'`${parentdir}.zip
 fi
 
 echo -n "Compressing..."
@@ -28,3 +27,17 @@ else
 	read
 	exit
 fi
+
+case $command in
+"compress")
+	# nothing more to do
+	;;
+	
+"backup")
+	mv $TARGET $BACKUP_DEST/`date +%Y%M%d_%H%M%S`_`echo $TARGET | awk 'BEGIN { FS="\\\\" } { print $(NF) }'`
+	[ $? -ne 0 ] && echo "ERROR: move failed" && read && exit
+	;;
+	
+"zipnemail")
+	;;
+esac
