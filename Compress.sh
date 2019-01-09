@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ZIP="T:/ProgramFiles/7-ZipPortable/App/7-Zip64/7zG.exe"
 BACKUP_DEST="X:/Backup"
 OUTLOOK="C:\Program Files (x86)\Microsoft Office\Office15\OUTLOOK.EXE"
