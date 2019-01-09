@@ -1,5 +1,6 @@
 ZIP="T:/ProgramFiles/7-ZipPortable/App/7-Zip64/7zG.exe"
 BACKUP_DEST="X:/Backup"
+OUTLOOK="C:\Program Files (x86)\Microsoft Office\Office15\OUTLOOK.EXE"
 
 echo "Checking parameters"
 [ $# -lt 2 ] && echo "ERROR: insufficient parameters" && exit
@@ -39,5 +40,6 @@ case $command in
 	;;
 	
 "zipnemail")
+	"$OUTLOOK" /c ipm.note /a "$TARGET"
 	;;
 esac
