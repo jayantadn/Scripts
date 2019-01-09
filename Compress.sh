@@ -19,7 +19,7 @@ else
 fi
 
 echo -n "Compressing..."
-$ZIP a -tzip -mx9 "$TARGET" $*
+$ZIP a -tzip -mx9 "$TARGET" "$@"
 if [ $? -eq 0 ]
 then
 	echo "OK"
