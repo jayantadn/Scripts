@@ -24,9 +24,7 @@ if [ $? -eq 0 ]
 then
 	echo "OK"
 else
-	echo "FAILED"
-	read
-	exit
+	echo "FAILED" && read && exit
 fi
 
 case $command in
@@ -35,7 +33,7 @@ case $command in
 	;;
 	
 "backup")
-	mv $TARGET $BACKUP_DEST/`date +%Y%M%d_%H%M%S`_`echo $TARGET | awk 'BEGIN { FS="\\\\" } { print $(NF) }'`
+	mv $TARGET $BACKUP_DEST/`date +%Y%m%d_%H%M%S`_`echo $TARGET | awk 'BEGIN { FS="\\\\" } { print $(NF) }'`
 	[ $? -ne 0 ] && echo "ERROR: move failed" && read && exit
 	;;
 	
