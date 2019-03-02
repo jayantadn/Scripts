@@ -16,7 +16,7 @@ for /d %%g in (%1) do set filename=%%~ng%%~xg
 rem Move to backup folder
 echo Move to backup folder
 if exist "%dest%\%timestamp%_%filename%" goto error
-copy "%1" "%dest%\%timestamp%_%filename%"
+copy %1 "%dest%\%timestamp%_%filename%"
 if %errorlevel% neq 0 goto error
 
 :success
