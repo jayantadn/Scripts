@@ -35,7 +35,7 @@ case $command in
 	;;
 	
 "backup")
-	mv $TARGET $BACKUP_DEST/`date +%Y%m%d_%H%M%S`_`echo $TARGET | awk 'BEGIN { FS="\\\\" } { print $(NF) }'`
+	mv "$TARGET" "$BACKUP_DEST/`date +%Y%m%d_%H%M%S`_`echo $TARGET | awk 'BEGIN { FS="\\\\" } { print $(NF) }'`"
 	[ $? -ne 0 ] && echo "ERROR: move failed" && read && exit
 	;;
 	
