@@ -50,8 +50,6 @@ case $command in
 	
 "zipnemail")
 	"$OUTLOOK" "$TARGET"
-	echo "DO NOT CLOSE the window yet. It will be closed automatically in 5s."
-	sleep 5
 	rm -f "$TARGET"
 	;;
 esac
