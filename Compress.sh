@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
+CURDIR=`dirname $0`
 ZIP="T:/ProgramFiles/7-ZipPortable/App/7-Zip64/7zG.exe"
 BACKUP_DEST="X:/Backup"
-OUTLOOK="C:\Program Files (x86)\Microsoft Office\Office15\OUTLOOK.EXE"
+OUTLOOK="$CURDIR/launch_outlook.bat"
 
 echo "Checking parameters"
 [ $# -lt 2 ] && echo "ERROR: insufficient parameters" && exit
@@ -40,6 +41,9 @@ case $command in
 	;;
 	
 "zipnemail")
-	"$OUTLOOK" /c ipm.note /a "$TARGET"
+	"$OUTLOOK" "$TARGET"
+	sleep 5
+	rm -f "$TARGET"
 	;;
 esac
+
