@@ -12,13 +12,21 @@ echo "Processing the arguments"
 command=$1
 shift
 
+echo "Remove trailing backslash if any"
+if [ `echo "${1: -1}"` == "\\" ] 
+then
+	filename="${1%?}"
+else
+	filename="$1"
+fi
+
 echo "Setting the compressed filename"
 if [ $# -eq 1 ] 
 then
-	TARGET="$1.zip"
+	TARGET="$filename.zip"
 else
-	parentdir=`echo "$1" | awk 'BEGIN { FS="\\\\" } { print $(NF-1) }'`
-	TARGET=`echo "$1" | awk 'BEGIN { FS="\\\\"; ORS="\\\\" } { for(i=1; i<NF; i++) print $i}'`${parentdir}.zip
+	parentdir=`echo "$filename" | awk 'BEGIN { FS="\\\\" } { print $(NF-1) }'`
+	TARGET=`echo "$filename" | awk 'BEGIN { FS="\\\\"; ORS="\\\\" } { for(i=1; i<NF; i++) print $i}'`${parentdir}.zip
 fi
 
 echo -n "Compressing..."
@@ -42,6 +50,7 @@ case $command in
 	
 "zipnemail")
 	"$OUTLOOK" "$TARGET"
+	echo "DO NOT CLOSE the window yet. It will be closed automatically in 5s."
 	sleep 5
 	rm -f "$TARGET"
 	;;
