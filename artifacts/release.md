@@ -1,0 +1,3 @@
+- deploy to home laptop
+- deploy to office laptop
+- github create release
