@@ -25,16 +25,33 @@ then
 	TARGET="$filename.zip"
 else
 	# FreeCommander passes \\ as path separator
-	filename=$(echo "$1" | sed 's/\\/\//g')
-	TARGET=$(dirname "$filename").zip
-	TARGET=$(echo "$TARGET" | sed 's/\//\\/g')
+	filename=$(echo "$1" | sed 's/\\/\//g') # \ to /
+	dirpath=$(dirname "$filename")
+	dir=$(basename "$dirpath")
+	TARGET="$dirpath/$dir.zip"
+	TARGET=$(echo "$TARGET" | sed 's/\//\\/g') # / to '\'
 fi
 
 echo -n "Compressing..."
-echo $@
-read && exit
-# "$ZIP" a -tzip -mx9 "$TARGET" "$@"
-if [ $? -eq 0 ]
+if [ $# -gt 1 ]
+then
+	i=2
+	filelist=("$1")
+	while [ $i -le $# ]
+	do
+		filename=$(echo "$1" | sed 's/\\/\//g')
+		dir=$(dirname "$filename")
+		filename="$dir/${!i}"
+		filename=$(echo "$filename" | sed 's/\//\\/g')
+		filelist[$(( $i - 1 ))]="$filename"
+		let i++
+	done
+	"$ZIP" a -tzip -mx9 "$TARGET" ${filelist[*]}
+else
+	"$ZIP" a -tzip -mx9 "$TARGET" "$1"
+fi
+
+if [ -f "$TARGET" ]
 then
 	echo "OK"
 else
