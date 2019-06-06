@@ -12,25 +12,28 @@ echo "Processing the arguments"
 command=$1
 shift
 
-echo "Remove trailing backslash if any"
-if [ `echo "${1: -1}"` == "\\" ] 
-then
-	filename="${1%?}"
-else
-	filename="$1"
-fi
-
 echo "Setting the compressed filename"
 if [ $# -eq 1 ] 
 then
+	echo "Remove trailing backslash if any" # This happens when compressing the parent directory
+	if [ `echo "${1: -1}"` == "\\" ] 
+	then
+		filename="${1%?}"
+	else
+		filename="$1"
+	fi
 	TARGET="$filename.zip"
 else
-	parentdir=`echo "$filename" | awk 'BEGIN { FS="\\\\" } { print $(NF-1) }'`
-	TARGET=`echo "$filename" | awk 'BEGIN { FS="\\\\"; ORS="\\\\" } { for(i=1; i<NF; i++) print $i}'`${parentdir}.zip
+	# FreeCommander passes \\ as path separator
+	filename=$(echo "$1" | sed 's/\\/\//g')
+	TARGET=$(dirname "$filename").zip
+	TARGET=$(echo "$TARGET" | sed 's/\//\\/g')
 fi
 
 echo -n "Compressing..."
-"$ZIP" a -tzip -mx9 "$TARGET" "$@"
+echo $@
+read && exit
+# "$ZIP" a -tzip -mx9 "$TARGET" "$@"
 if [ $? -eq 0 ]
 then
 	echo "OK"

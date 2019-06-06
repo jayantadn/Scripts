@@ -1,3 +1,5 @@
 - deploy to home laptop
 - deploy to office laptop
+	- copy to installation folder
+	- modify FreeCommander settings
 - github create release
