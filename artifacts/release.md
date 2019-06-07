@@ -2,4 +2,5 @@
 - deploy to office laptop
 	- copy to installation folder
 	- modify FreeCommander settings
+- put the latest FreeCommander.fav.ini file into delivery
 - github create release
