@@ -3,7 +3,8 @@
 DEST="X:/Backup"
 
 echo "Checking if parameter is valid"
-[ -f "$1" ] || { echo "ERROR: Invalid parameter"; read; exit; }
+[ -f "$1" ] || { echo "ERROR: Not a file"; read; exit; }
+[ $# -ne 1 ] && { echo "ERROR: Cannot backup multiple files. Please use zip option"; read; exit; }
 
 echo "extract the filename from the path"
 filename=`basename "$1"`

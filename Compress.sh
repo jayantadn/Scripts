@@ -32,17 +32,24 @@ else
 	TARGET=$(echo "$TARGET" | sed 's/\//\\/g') # / to '\'
 fi
 
-echo -n "Compressing..."
+echo "Compressing..."
 if [ $# -gt 1 ]
 then
 	i=2
 	filelist=("$1")
 	while [ $i -le $# ]
 	do
-		filename=$(echo "$1" | sed 's/\\/\//g')
+		filename=$(echo "$1" | sed 's/\\/\//g') # \ to /
 		dir=$(dirname "$filename")
 		filename="$dir/${!i}"
-		filename=$(echo "$filename" | sed 's/\//\\/g')
+        echo "$filename" | grep ' '
+        if [ $? -eq 0 ]
+        then
+            echo "ERROR: cannot compress multiple files with spaces"
+            read
+            exit
+        fi
+		filename=$(echo "$filename" | sed 's/\//\\/g') # / to '\'
 		filelist[$(( $i - 1 ))]="$filename"
 		let i++
 	done
@@ -51,13 +58,16 @@ else
 	"$ZIP" a -tzip -mx9 "$TARGET" "$1"
 fi
 
+echo "Checking if zip file is created"
 if [ -f "$TARGET" ]
 then
-	echo "OK"
+    echo "Compression seems to be done. Check 7z log for details."
 else
-	echo "FAILED" && read && exit
+    echo "ERROR: Compression FAILED"
+    read && exit
 fi
 
+echo "Processing the given command"
 case $command in
 "compress")
 	# nothing more to do

@@ -1,5 +1,7 @@
 @echo off
 
+set OUTLOOK="C:\Program Files (x86)\Microsoft Office\Office16\OUTLOOK.EXE"
+
 echo Checking number of arguments
 set argC=0
 for %%x in (%*) do Set /A argC+=1
@@ -13,4 +15,4 @@ echo Extract the filename from the path
 for /d %%g in (%1) do set filename=%%~ng%%~xg
 
 echo Launching outlook...
-"C:\Program Files\WindowsApps\Microsoft.Office.Desktop.Outlook_16051.11629.20196.0_x86__8wekyb3d8bbwe\Office16\OUTLOOK.EXE" /c ipm.note /m "&subject=%filename%" /a %1
+%OUTLOOK% /c ipm.note /m "&subject=%filename%" /a %1
