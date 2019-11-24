@@ -6,14 +6,20 @@ function calculate(e) {
   else {
     /* do not run when columns are removed via macro */
     if( parseInt( PropertiesService.getScriptProperties().getProperty('flgColumnRemove') ) != 0 ) {
-      PropertiesService.setScriptProperties().setProperty('flgColumnRemove', '0');
+      PropertiesService.getScriptProperties().setProperty('flgColumnRemove', '0');
       return;
     }
   }
   
-  /* local variables */
+  /* get the current sheet */
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheets()[1];
+  var sheet = ss.getActiveSheet();
+  if( sheet.getName() == "Summary" ) {
+    /* This function is not meant for Summary sheet */
+    return;
+  }
+  
+  /* initialize variables */
   var maxRows = PropertiesService.getScriptProperties().getProperty('MAX_ROWS');
   var arrNew = sheet.getRange("F4:F" + maxRows).getValues();
   var arrOld = sheet.getRange("H4:H" + maxRows).getValues();
@@ -82,7 +88,6 @@ function calculate(e) {
           }
         }
         else {
-          Logger.log( arrDeltaProfit[i] );
           if( arrDeltaProfit[i][0] < arrDeltaProfit[iMinMax][0] ) {
             iMinMax = i;
           }
@@ -111,7 +116,7 @@ function calculate(e) {
   
   /* highlight the min/max cell */
   sheet.getRange( 4, 5, maxRows, 1).setFontColor("black");
-  if( profitTotalDelta > 0 ) { /* CAVEAT! by this time profitTotalDelta might have changed. but its safe to ignore this. */
+  if( profitTotalDelta > 0 ) { /* CAVEAT! by this time profitTotalDelta might have changed. but its relatively safe to ignore. */
     sheet.getRange( 4 + iMinMax, 5).setFontColor("green");
   }
   else {
