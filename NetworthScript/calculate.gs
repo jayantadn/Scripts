@@ -1,23 +1,7 @@
-function calculate(e) {
-  /* autorun this function only when column F is edited */
-  if( e != undefined && e.range.getColumn() != 6 ) {
-    return;
-  }
-  else {
-    /* do not run when columns are removed via macro */
-    if( parseInt( PropertiesService.getScriptProperties().getProperty('flgColumnRemove') ) != 0 ) {
-      PropertiesService.getScriptProperties().setProperty('flgColumnRemove', '0');
-      return;
-    }
-  }
-  
+function calculate(e) { 
   /* get the current sheet */
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getActiveSheet();
-  if( sheet.getName() == "Summary" ) {
-    /* This function is not meant for Summary sheet */
-    return;
-  }
   
   /* initialize variables */
   var maxRows = PropertiesService.getScriptProperties().getProperty('MAX_ROWS');
@@ -25,7 +9,6 @@ function calculate(e) {
   var arrOld = sheet.getRange("H4:H" + maxRows).getValues();
   var arrOri = sheet.getRange("C4:C" + maxRows).getValues();
   var arrCas = sheet.getRange("B4:B" + maxRows).getValues();
-  var profitTotalDelta = sheet.getRange("E2").getValue();
   
   /* validations */
   if(maxRows == null) {
@@ -34,8 +17,8 @@ function calculate(e) {
   }
   
   /* all calculations */
-  var arrDeltaProfit = new Array();
-  var arrTotalProfit = new Array();
+  var arrDeltaProfit = []; // this becomes a 2dim array, when value is populated
+  var arrTotalProfit = []; // this becomes a 2dim array, when value is populated
   var valOld = 0;
   var sumOld = 0;
   var iMinMax = null;
@@ -77,25 +60,8 @@ function calculate(e) {
       arr.push(deltaProfit);
       arrDeltaProfit.push(arr);
       
-      /* calculate the min/max delta profit */
-      if( iMinMax == null ) {
-        iMinMax = i;
-      }
-      else {
-        if( profitTotalDelta > 0 ) {
-          if( arrDeltaProfit[i][0] > arrDeltaProfit[iMinMax][0] ) {
-            iMinMax = i;
-          }
-        }
-        else {
-          if( arrDeltaProfit[i][0] < arrDeltaProfit[iMinMax][0] ) {
-            iMinMax = i;
-          }
-        }
-      }
-           
       /* total profit */
-      var totalProfit = (arrNew[i] - arrOri[i]) / arrOri[i];
+      var totalProfit = (arrNew[i] - arrOri[i]) / arrOri[i]; // this is not the same as overall total profit
       var arr = new Array(); // gscript expects a 2D array here
       arr.push(totalProfit);
       arrTotalProfit.push(arr);      
@@ -114,12 +80,51 @@ function calculate(e) {
   sheet.getRange("E4:E" + maxRows).setValues(arrDeltaProfit); // delta profit % for individual funds
   sheet.getRange("D4:D" + maxRows).setValues(arrTotalProfit); // total profit % for individual funds
   
-  /* highlight the min/max cell */
-  sheet.getRange( 4, 5, maxRows, 1).setFontColor("black");
-  if( profitTotalDelta > 0 ) { /* CAVEAT! by this time profitTotalDelta might have changed. but its relatively safe to ignore. */
-    sheet.getRange( 4 + iMinMax, 5).setFontColor("green");
+  /* highlight min/max cell */
+  showMinMax(5); // delta
+  showMinMax(4); // total
+  
+  /* highlight in-plausible values */
+  showErrors();
+}
+
+
+function showMinMax(col) {
+  /* scope local variables */
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet();
+  var maxRows = PropertiesService.getScriptProperties().getProperty('MAX_ROWS');
+  sheet.getRange( 4, col, maxRows, 1).setFontColor("black");
+  
+  /* the actual calculation */
+  var rangeProfit = sheet.getRange(4, col, maxRows, 1);
+  var arrProfit = rangeProfit.getValues().map( function(data) { return data[0]; } );
+  if(sheet.getRange(2, col).getValue() > 0) {
+    var max = arrProfit.concat().sort( function(a,b) { return a-b; } )[arrProfit.length-1];
+    var idx = arrProfit.indexOf(max);
+    sheet.getRange(4+idx, col).setFontColor("green");
   }
   else {
-    sheet.getRange( 4 + iMinMax, 5).setFontColor("red");
+    var arrProfitFiltered = arrProfit.filter( function(data) { return data != ""; } );
+    var min = arrProfitFiltered.concat().sort( function(a,b) { return a-b; } )[0];
+    var idx = arrProfit.indexOf(min);
+    sheet.getRange(4+idx, col).setFontColor("red");
   }
+}
+
+
+function showErrors() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet();
+  var maxRows = PropertiesService.getScriptProperties().getProperty('MAX_ROWS');
+  var rangeProfit = sheet.getRange(4, 5, maxRows, 1);
+  var arrProfit = rangeProfit.getValues().map( function(data) { return data[0]; } );
+  var arrErr = [];
+  arrProfit.forEach( function(data, idx) {
+    if( Math.abs(data) > 0.1 )
+      arrErr.push(idx);
+  });
+  arrErr.forEach( function(idx) {
+    sheet.getRange(4+idx, 5).setFontColor("#cc00cc");
+  });
 }
