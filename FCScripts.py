@@ -108,5 +108,11 @@ if __name__ == "__main__" :
         timestamp = time.strftime("%Y%m%d_%H%M%S_", time.localtime())
         shutil.move( zipfile, os.path.join(BUPDIR, timestamp + os.path.basename(zipfile)) )
     
+    elif sys.argv[1] == "BackupFile" :
+        myassert(len(sys.argv) == 3, "This operation can take only a single file")
+        myassert(os.path.isfile(sys.argv[2]), "Invalid file")
+        timestamp = time.strftime("%Y%m%d_%H%M%S_", time.localtime())
+        shutil.copy( sys.argv[2], os.path.join(BUPDIR, timestamp + os.path.basename(sys.argv[2])) )
+
     else :
         myassert(False, "Invalid command")
