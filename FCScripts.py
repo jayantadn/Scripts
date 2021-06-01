@@ -3,6 +3,13 @@ ZIP = "T:\\ProgramFiles\\7-ZipPortable\\App\\7-Zip64\\7zG.exe"
 BUPDIR = "X:\\Backup"
 OUTLOOK = "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
 
+# A custom assert implementation
+def myassert(expr, msg) :
+    if not expr :
+        print("ERROR: " + msg)
+        input("Press enter to exit...")
+        exit(1)
+
 # All imports
 try :
     import os
@@ -12,17 +19,11 @@ try :
     import shutil
     import clipboard
     import time
+    import win32wnet # pip install pywin32
 except :
-    myassert( False, "Some python modules are not installed." )
+    myassert(False, "Import failed")
 
-# function definitions
-def myassert(expr, msg) :
-    if not expr :
-        print("ERROR: " + msg)
-        input("Press enter to exit...")
-        exit(1)
-        
-        
+
 # Compress a list of files provided
 def Compress(filelist) :
     # compute the output file name
@@ -93,6 +94,10 @@ def CopyPath(filelist) :
         unorglist.append( file )
         unorglist.append( file.replace("\\", "\\\\") )
         unorglist.append( file.replace("\\", "/") )
+        try :
+            unorglist.append( win32wnet.WNetGetUniversalName(file,1) )
+        except :
+            pass
     
     # create set of organized lists
     orglist = []
@@ -176,6 +181,12 @@ if __name__ == "__main__" :
             myassert( ret == 0, "Could not launch Outlook" )
         except :
             myassert( False, "Could not launch Outlook" )
+            
+    elif sys.argv[1] == "RenameImages" :
+        print("About to rename images")
+        
+    elif sys.argv[1] == "RenameSubtitles" :
+        print("About to rename subtitles")
 
     else :
         myassert(False, "Invalid command")
