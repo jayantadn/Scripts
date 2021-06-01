@@ -1,13 +1,19 @@
 # Configuration
 ZIP = "T:\\ProgramFiles\\7-ZipPortable\\App\\7-Zip64\\7zG.exe"
 BUPDIR = "X:\\Backup"
+OUTLOOK = "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
 
 # All imports
-import os
-import sys
-import subprocess
-import time
-import shutil
+try :
+    import os
+    import sys
+    import subprocess
+    import time
+    import shutil
+    import clipboard
+    import time
+except :
+    myassert( False, "Some python modules are not installed." )
 
 # function definitions
 def myassert(expr, msg) :
@@ -15,6 +21,7 @@ def myassert(expr, msg) :
         print("ERROR: " + msg)
         input("Press enter to exit...")
         exit(1)
+        
         
 # Compress a list of files provided
 def Compress(filelist) :
@@ -74,21 +81,68 @@ def hasMultiFiles(zipfile) :
         linenum += 1
     return False
        
-       
+
+# Copy file path in different formats
+def CopyPath(filelist) :
+    # populate unorganized list. 
+    # This is the main logic where you add different path types.
+    # rest of the function dont change
+    unorglist = []
+    for file in filelist :
+        unorglist.append( os.path.basename(file) )
+        unorglist.append( file )
+        unorglist.append( file.replace("\\", "\\\\") )
+        unorglist.append( file.replace("\\", "/") )
+    
+    # create set of organized lists
+    orglist = []
+    numpath = int( len(unorglist) / len(filelist) )
+    for i in range(numpath) :
+        orglist.append([])
+    i = 0
+    for path in unorglist :
+        if i >= numpath :
+            i = 0
+        orglist[i].append(path)
+        i += 1
+
+    # display menu
+    i = 0
+    for item in orglist :
+        print( i, item[0], end="" )
+        if len(item) > 1 :
+            print(", ", item[1], " ...")
+        else :
+            print("")
+        i += 1
+    idx = int( input( "Enter your choice: " ) )
+    
+    # copy to clipboard
+    txt = ""
+    if len(orglist[idx]) == 1 :
+        txt = orglist[idx][0]
+    else :
+        for item in orglist[idx] :
+            txt = txt + item + "\n"
+    clipboard.copy( txt )
+    
 # program entry point
 if __name__ == "__main__" :
     # doing some common sanity checks
     myassert( os.path.exists(ZIP), "7z path invalid" )
     myassert( os.path.isdir(BUPDIR), "Backup folder is invalid" )
-    myassert(len(sys.argv) >= 2, "Program called without any commands")
+    myassert(len(sys.argv) > 2, "Insufficient parameters")
+
+    # converting each file name into full path
+    filelist = [ sys.argv[2].rstrip("\\") ]
+    dirname = os.path.dirname( sys.argv[2] )
+    i = 3
+    while i < len(sys.argv) :
+        filelist.append( os.path.join( dirname, sys.argv[i].rstrip("\\") ) )
+        i += 1
 
     if sys.argv[1] == "Compress" :
-        myassert(len(sys.argv) > 2, "Insufficient parameters")
-        sys.argv.pop(0)
-        sys.argv.pop(0)
-        for file in sys.argv :
-            myassert(os.path.exists(file), "Invalid file: " + file)
-        Compress(sys.argv)
+        Compress(filelist)
 
     elif sys.argv[1] == "Uncompress" :
         myassert(len(sys.argv) == 3, "Invalid number of parameters")
@@ -96,15 +150,7 @@ if __name__ == "__main__" :
         Uncompress(sys.argv[2])
         
     elif sys.argv[1] == "BackupDir" :
-        # Compress the given file(s)
-        myassert(len(sys.argv) > 2, "Insufficient parameters")
-        sys.argv.pop(0)
-        sys.argv.pop(0)
-        for file in sys.argv :
-            myassert(os.path.exists(file), "Invalid file: " + file)
-        zipfile = Compress(sys.argv)
-        
-        # generate timestamp and move to backup folder
+        zipfile = Compress(filelist)
         timestamp = time.strftime("%Y%m%d_%H%M%S_", time.localtime())
         shutil.move( zipfile, os.path.join(BUPDIR, timestamp + os.path.basename(zipfile)) )
     
@@ -113,6 +159,23 @@ if __name__ == "__main__" :
         myassert(os.path.isfile(sys.argv[2]), "Invalid file")
         timestamp = time.strftime("%Y%m%d_%H%M%S_", time.localtime())
         shutil.copy( sys.argv[2], os.path.join(BUPDIR, timestamp + os.path.basename(sys.argv[2])) )
+
+    elif sys.argv[1] == "CopyPath" :
+        CopyPath(filelist)
+
+    elif sys.argv[1] == "Email" :
+        if len(filelist) > 1 or filelist[0].endswith(".bat") :
+            filename = Compress( filelist )
+        else :
+            filename = filelist[0]
+        try :
+            ret = subprocess.call( OUTLOOK + " /c ipm.note /m ?subject=" + os.path.basename(filename) + " /a " + filename )
+            if filename.endswith(".zip") :
+                time.sleep(1)
+                os.remove(filename)
+            myassert( ret == 0, "Could not launch Outlook" )
+        except :
+            myassert( False, "Could not launch Outlook" )
 
     else :
         myassert(False, "Invalid command")
