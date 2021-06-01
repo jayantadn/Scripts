@@ -134,7 +134,6 @@ def CopyPath(filelist) :
 # program entry point
 if __name__ == "__main__" :
     # doing some common sanity checks
-    myassert( os.path.exists(ZIP), "7z path invalid" )
     myassert( os.path.isdir(BUPDIR), "Backup folder is invalid" )
     myassert(len(sys.argv) > 2, "Insufficient parameters")
 
@@ -147,9 +146,11 @@ if __name__ == "__main__" :
         i += 1
 
     if sys.argv[1] == "Compress" :
+        myassert( os.path.exists(ZIP), "7z path invalid" )
         Compress(filelist)
 
     elif sys.argv[1] == "Uncompress" :
+        myassert( os.path.exists(ZIP), "7z path invalid" )
         myassert(len(sys.argv) == 3, "Invalid number of parameters")
         myassert( os.path.exists(sys.argv[2]), "Zip file does not exist" )
         Uncompress(sys.argv[2])
