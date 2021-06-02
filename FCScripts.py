@@ -18,8 +18,8 @@ try :
     import time
     import shutil
     import clipboard
-    import time
     import win32wnet # pip install pywin32
+    import msvcrt
 except :
     myassert(False, "Import failed")
 
@@ -120,7 +120,8 @@ def CopyPath(filelist) :
         else :
             print("")
         i += 1
-    idx = int( input( "Enter your choice: " ) )
+    print( "Enter your choice: " )
+    idx = int( msvcrt.getch() )
     
     # copy to clipboard
     txt = ""
