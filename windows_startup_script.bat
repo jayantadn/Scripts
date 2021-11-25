@@ -1,3 +1,3 @@
 rem the current contents are for office setup
-if not exist X: subst X: C:\DATA
-if not exist X: subst T: C:\Tools
+rem if not exist X: subst X: C:\DATA
+rem if not exist T: subst T: C:\Tools

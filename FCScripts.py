@@ -1,7 +1,12 @@
-# Configuration
-ZIP = "T:\\ProgramFiles\\7-ZipPortable\\App\\7-Zip64\\7zG.exe"
-BUPDIR = "X:\\Backup"
-OUTLOOK = "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
+# Home Configuration
+#ZIP = "T:\\ProgramFiles\\7-ZipPortable\\App\\7-Zip64\\7zG.exe"
+#BUPDIR = "X:\\Backup"
+#OUTLOOK = "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
+
+# Office Configuration
+ZIP = "C:\\Program Files\\7-Zip\\7zG.exe"
+BUPDIR = "C:\\DATA\\OneDrive - Robert Bosch GmbH\\Backup"
+OUTLOOK = "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
 
 # A custom assert implementation
 def myassert(expr, msg) :
@@ -21,7 +26,7 @@ try :
     import win32wnet # pip install pywin32
     import msvcrt
 except :
-    myassert(False, "Import failed")
+    myassert(False, "Import failed. try pip install.")
 
 
 # Compress a list of files provided
