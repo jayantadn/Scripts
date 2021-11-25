@@ -7,6 +7,7 @@
 ZIP = "C:\\Program Files\\7-Zip\\7zG.exe"
 BUPDIR = "C:\\DATA\\OneDrive - Robert Bosch GmbH\\Backup"
 OUTLOOK = "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
+PLANTUML = "C:\\Tools\\ProgramFiles\\PlantUML\\plantuml-1.2021.14.jar"
 
 # A custom assert implementation
 def myassert(expr, msg) :
@@ -53,7 +54,6 @@ def Compress(filelist) :
         return outfile
     except :
         myassert(False, "Failed to execute 7z command")
-
 
 # Uncompress a zip file
 def Uncompress(zipfile) :
@@ -200,6 +200,12 @@ if __name__ == "__main__" :
         for file in filelist :
             if file.endswith("-eng.srt") :
                 os.rename( file, file.replace("-eng.srt", ".srt") )
+
+    elif sys.argv[1] == "PlantUML" :
+        subprocess.call( f"java -jar {PLANTUML} {sys.argv[2]}" ) # FIXME: Check return value
+        (pngfile, ext) = os.path.splitext(sys.argv[2])
+        pngfile += ".png"
+        os.system(f"start {pngfile}") # todo: use subprocess
 
     else :
         myassert(False, "Invalid command")
