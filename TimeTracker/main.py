@@ -10,7 +10,12 @@ def myassert(cond, msg, raise_excep = False) :
             os.abort()
 
 def clearscr() :
-    os.system('clear' if os.name =='posix' else 'cls')
+    if os.name =='posix' :
+        os.system('clear')
+    elif os.name =='nt' :
+        os.system('cls')
+    else :
+        pass
 
 # import modules
 try :
