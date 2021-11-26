@@ -9,6 +9,9 @@ def myassert(cond, msg, raise_excep = False) :
             input("Press <enter> to exit...")
             os.abort()
 
+def clearscr() :
+    os.system('clear' if os.name =='posix' else 'cls')
+
 # import modules
 try :
     import os
@@ -42,6 +45,7 @@ def show_stats() :
     # calculate deficit hours
     ndays = 0
     acttd = timedelta(0)
+    flgTimerStarted = False
     for entry in timedb :
         # calculate number of working days
         ndays += entry['workday']
@@ -51,9 +55,12 @@ def show_stats() :
         for tim in entry['timestamps'] :
             (h, m, s) = tim['start'].split(":")
             start = datetime.combine(date.today(), time(int(h),int(m),int(s)))
-            (h, m, s) = tim['end'].split(":")
-            end = datetime.combine(date.today(), time(int(h),int(m),int(s)))
-            td += (end - start)
+            if tim['end'] is not None :
+                (h, m, s) = tim['end'].split(":")
+                end = datetime.combine(date.today(), time(int(h),int(m),int(s)))
+                td += (end - start)
+            else :
+                flgTimerStarted = True
         acttd += td 
 
         # collect data for current week
@@ -66,7 +73,10 @@ def show_stats() :
     exphrs = ndays * float( config['DEFAULT']['DAILYEFFORT'] )
     acthrs = acttd.seconds/3600
     defhrs = exphrs - acthrs
+    clearscr()
     print(table)
+    print(f"Deficit hours: {defhrs:.2f}")
+    print(f"Timer running: {flgTimerStarted}")
 
 def start_timer() :
     # read database file
@@ -100,6 +110,7 @@ def start_timer() :
     file = open( config['DEFAULT']['TIMEDB'], 'w' )
     file.write( json.dumps(timedb, indent=4) )
     file.close()
+    show_stats()
 
 def stop_timer() :
     # read the file
@@ -121,6 +132,7 @@ def stop_timer() :
     file = open( config['DEFAULT']['TIMEDB'], 'w' )
     file.write( json.dumps(timedb, indent=4) )
     file.close()
+    show_stats()
 
 # main wrapped around to catch any exceptions to keep the console open
 def main() :
