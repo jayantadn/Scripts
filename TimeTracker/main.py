@@ -66,6 +66,8 @@ def show_stats() :
                 td += (end - start)
             else :
                 flgTimerStarted = True
+                end = datetime.today()
+                td += (end - start)
         acttd += td 
 
         # collect data for current week
