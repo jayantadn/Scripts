@@ -35,5 +35,5 @@ class Menu :
             if this.Itemlist[choice-1].Func is not None :
                 this.Itemlist[choice-1].Func()
             else :
-                return choice-1
+                return choice
             

@@ -124,7 +124,6 @@ def start_timer() :
     file = open( config['DEFAULT']['TIMEDB'], 'w' )
     file.write( json.dumps(timedb, indent=4) )
     file.close()
-    show_stats()
 
 def stop_timer() :
     global config
@@ -142,7 +141,6 @@ def stop_timer() :
     
     # write back
     savedb()
-    show_stats()
 
 
 def add_correction() :
@@ -151,16 +149,32 @@ def add_correction() :
 
     cor = input( "Enter mins to add: " )
     tod = datetime.today().strftime("%Y-%m-%d")
-    for i in range( len(timedb) ) :
-        if tod == timedb[i]['date'] :
-            timedb[i]['correction'] += int(cor)
+    for entry in range( len(timedb) ) :
+        if tod == timedb[entry]['date'] :
+            timedb[entry]['correction'] += int(cor)
     savedb()
-    show_stats()
 
 def mark_day() :
     global config
     global timedb
-    pass
+    
+    # find which 
+    curweek = datetime.today().strftime("%W")
+    menu = Menu(show_stats)
+    for i in range( len(timedb) ) :
+        dat = date.fromisoformat( timedb[i]['date'] )
+        week = dat.strftime("%W")
+        if(week == curweek) :
+            menu.add( MenuItem( timedb[i]['date'] ) )
+    idx = menu.show()
+
+    # get new value and write
+    val = int( input( "Enter new value (0, 0.5, 1) : ") )
+    timedb[idx]['workday'] = val
+
+    # save and show menu
+    savedb()
+    show_menu()
 
 def show_prev_stats() :
     global config
@@ -168,6 +182,7 @@ def show_prev_stats() :
     pass
 
 def show_menu() :
+    show_stats()
     menu = Menu()
     menu.add( MenuItem( "Start Timer", start_timer ) )
     menu.add( MenuItem( "Stop Timer", stop_timer ) )
