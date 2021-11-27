@@ -149,16 +149,16 @@ def add_correction() :
 
     cor = input( "Enter mins to add: " )
     tod = datetime.today().strftime("%Y-%m-%d")
-    for entry in range( len(timedb) ) :
-        if tod == timedb[entry]['date'] :
-            timedb[entry]['correction'] += int(cor)
+    for i in range( len(timedb) ) :
+        if tod == timedb[i]['date'] :
+            timedb[i]['correction'] += int(cor)
     savedb()
 
 def mark_day() :
     global config
     global timedb
     
-    # find which 
+    # find entry to modify
     curweek = datetime.today().strftime("%W")
     menu = Menu(show_stats)
     for i in range( len(timedb) ) :
