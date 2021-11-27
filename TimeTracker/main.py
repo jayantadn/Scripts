@@ -1,22 +1,3 @@
-# custom utility functions
-def myassert(cond, msg, raise_excep = False) :
-    if not cond :
-        print( "ERROR: " + msg )
-        if raise_excep :
-            input("Press <enter> to see details.")
-            raise
-        else :
-            input("Press <enter> to exit...")
-            os.abort()
-
-def clearscr() :
-    if os.name =='posix' :
-        os.system('clear')
-    elif os.name =='nt' :
-        os.system('cls')
-    else :
-        pass
-
 # import modules
 try :
     import os
@@ -29,6 +10,7 @@ except :
 
 # import internal modules
 from Menu import *
+from Utils import *
 
 # reading config and database files globally, as its required for all functions
 config = configparser.ConfigParser()
@@ -44,15 +26,16 @@ def savedb() :
     file.close()
 
 # display the current statistics
-def show_stats() :
+def show_stats(wk=None) :
     global config
     global timedb
 
-    # print current week data
+    # prepare table for current week data
     table = prettytable.PrettyTable(["Date", "Day", "Work Day", "Duration"])
-    # table.add_row( ["22-10-22", "Fri", 1, 34 ] )
-    # print(table)
-    ( _, curweek, _) = datetime.today().isocalendar()
+    if wk is None :
+        ( _, curweek, _) = datetime.today().isocalendar()
+    else :
+        curweek = wk
 
     # calculate deficit hours
     ndays = 0
@@ -121,9 +104,8 @@ def start_timer() :
     timedb[idx]['timestamps'].append(timentry)
     
     # write back
-    file = open( config['DEFAULT']['TIMEDB'], 'w' )
-    file.write( json.dumps(timedb, indent=4) )
-    file.close()
+    savedb()
+    show_menu()
 
 def stop_timer() :
     global config
@@ -141,7 +123,7 @@ def stop_timer() :
     
     # write back
     savedb()
-
+    show_menu()
 
 def add_correction() :
     global config
@@ -179,7 +161,19 @@ def mark_day() :
 def show_prev_stats() :
     global config
     global timedb
-    pass
+
+    menu = Menu(show_stats)
+    menu.add( MenuItem("Prev") )
+    menu.add( MenuItem("Next") )
+
+    week = int( datetime.today().strftime("%W") ) - 1
+    while( week > 0 ) :
+        show_stats(week)
+        ret = menu.show()
+        if ret == 1 :
+            week -= 1
+        elif ret == 2 :
+            week += 1
 
 def show_menu() :
     show_stats()
