@@ -37,6 +37,12 @@ dbfile = open( config['DEFAULT']['TIMEDB'], 'r' )
 timedb = json.loads( dbfile.read() )
 dbfile.close()    
 
+# write to database file
+def savedb() :
+    file = open( config['DEFAULT']['TIMEDB'], 'w' )
+    file.write( json.dumps(timedb, indent=4) )
+    file.close()
+
 # display the current statistics
 def show_stats() :
     global config
@@ -69,14 +75,16 @@ def show_stats() :
                 flgTimerStarted = True
                 end = datetime.today()
                 td += (end - start)
-        acttd += td 
+        acttd = acttd + td + timedelta( minutes = entry['correction'] )
 
         # collect data for current week
         (y, mm, s) = entry['date'].split("-")
         dat = datetime( int(y), int(mm), int(s) )
         ( _, week, _) = dat.isocalendar()
         if week == curweek :
-            table.add_row( [ entry['date'], dat.strftime("%a"), entry['workday'], f"{td.seconds/3600:.2f}" ] )
+            hrs = td.seconds/3600
+            hrs += ( int(entry['correction']) / 60 )
+            table.add_row( [ entry['date'], dat.strftime("%a"), entry['workday'], f"{hrs:.2f}" ] )
 
     exphrs = ndays * float( config['DEFAULT']['DAILYEFFORT'] )
     acthrs = acttd.seconds/3600
@@ -133,29 +141,30 @@ def stop_timer() :
             break
     
     # write back
-    file = open( config['DEFAULT']['TIMEDB'], 'w' )
-    file.write( json.dumps(timedb, indent=4) )
-    file.close()
+    savedb()
     show_stats()
 
-def edit_timer() :
+
+def add_correction() :
     global config
     global timedb
 
-    # tod = datetime.today().strftime("%Y-%m-%d")
-    # for entry in timedb :
-    #     if tod == entry['date'] :
-    #         idx = len( entry['timestamps'] ) - 1
-    #         tim = entry['timestamps'][idx]
-    #         if tim['end'] is None :
-    #             newtime = input(f"Old start time = {tim['end']} \tEnter new start time = ")
-    #             tim['end'] = newtime
-    #         else :
-    #             input(f"Old end time = {tim['end']} \tEnter new end time = ")
-    #         break
-    # print(timedb)
+    cor = input( "Enter mins to add: " )
+    tod = datetime.today().strftime("%Y-%m-%d")
+    for i in range( len(timedb) ) :
+        if tod == timedb[i]['date'] :
+            timedb[i]['correction'] += int(cor)
+    savedb()
+    show_stats()
 
-def edit_workday() :
+def mark_day() :
+    global config
+    global timedb
+    pass
+
+def show_prev_stats() :
+    global config
+    global timedb
     pass
 
 def show_menu() :
@@ -163,8 +172,9 @@ def show_menu() :
     menu.add( MenuItem( "Start Timer", start_timer ) )
     menu.add( MenuItem( "Stop Timer", stop_timer ) )
     menu.add( MenuItem( "Refresh", show_stats ) )
-    menu.add( MenuItem( "Edit timer", edit_timer ) )
-    menu.add( MenuItem( "Edit working day", edit_workday ) )
+    menu.add( MenuItem( "Time Correction", add_correction ) )
+    menu.add( MenuItem( "Mark holiday / half day", mark_day ) )
+    menu.add( MenuItem( "Show previous records", show_prev_stats ) )
     while True: menu.show()
 
 def main() :
