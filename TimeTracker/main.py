@@ -30,16 +30,17 @@ except :
 # import internal modules
 from Menu import *
 
-# Globals
+# reading config and database files globally, as its required for all functions
 config = configparser.ConfigParser()
 config.read('config.ini')
+dbfile = open( config['DEFAULT']['TIMEDB'], 'r' )
+timedb = json.loads( dbfile.read() )
+dbfile.close()    
 
 # display the current statistics
 def show_stats() :
-    # read database file
-    file = open( config['DEFAULT']['TIMEDB'], 'r' )
-    timedb = json.loads( file.read() )
-    file.close()
+    global config
+    global timedb
 
     # print current week data
     table = prettytable.PrettyTable(["Date", "Day", "Work Day", "Duration"])
@@ -86,10 +87,8 @@ def show_stats() :
     print(f"Timer running: {flgTimerStarted}")
 
 def start_timer() :
-    # read database file
-    file = open( config['DEFAULT']['TIMEDB'], 'r' )
-    timedb = json.loads( file.read() )
-    file.close()
+    global config
+    global timedb
 
     # modify contents
     tod = datetime.today().strftime("%Y-%m-%d")
@@ -120,10 +119,8 @@ def start_timer() :
     show_stats()
 
 def stop_timer() :
-    # read the file
-    file = open( config['DEFAULT']['TIMEDB'], 'r' )
-    timedb = json.loads( file.read() )
-    file.close()
+    global config
+    global timedb
 
     # modify contents
     tod = datetime.today().strftime("%Y-%m-%d")
@@ -141,18 +138,45 @@ def stop_timer() :
     file.close()
     show_stats()
 
-# main wrapped around to catch any exceptions to keep the console open
+def edit_timer() :
+    global config
+    global timedb
+
+    # tod = datetime.today().strftime("%Y-%m-%d")
+    # for entry in timedb :
+    #     if tod == entry['date'] :
+    #         idx = len( entry['timestamps'] ) - 1
+    #         tim = entry['timestamps'][idx]
+    #         if tim['end'] is None :
+    #             newtime = input(f"Old start time = {tim['end']} \tEnter new start time = ")
+    #             tim['end'] = newtime
+    #         else :
+    #             input(f"Old end time = {tim['end']} \tEnter new end time = ")
+    #         break
+    # print(timedb)
+
+def edit_workday() :
+    pass
+
+def show_menu() :
+    menu = Menu()
+    menu.add( MenuItem( "Start Timer", start_timer ) )
+    menu.add( MenuItem( "Stop Timer", stop_timer ) )
+    menu.add( MenuItem( "Refresh", show_stats ) )
+    menu.add( MenuItem( "Edit timer", edit_timer ) )
+    menu.add( MenuItem( "Edit working day", edit_workday ) )
+    while True: menu.show()
+
 def main() :
         show_stats()
-        menu = Menu()
-        menu.add( MenuItem( "Start Timer", start_timer ) )
-        menu.add( MenuItem( "Stop Timer", stop_timer ) )
-        while True: menu.show()
+        show_menu()
 
 if __name__ == "__main__":
     try :
         main()
     except SystemExit :
+        pass
+    except KeyboardInterrupt :
         pass
     except:
         myassert( False, "An exception has occurred.", True )            

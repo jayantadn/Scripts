@@ -1,6 +1,6 @@
 # MenuItem class
 class MenuItem :
-    def __init__(this, txt, func) :
+    def __init__(this, txt, func=None) :
         this.Txt = txt	# data members are defined on the fly
         this.Func = func
         
@@ -32,5 +32,8 @@ class Menu :
             else :
                 this.ExitHandler()
         else :
-            this.Itemlist[choice-1].Func()
+            if this.Itemlist[choice-1].Func is not None :
+                this.Itemlist[choice-1].Func()
+            else :
+                return choice-1
             
