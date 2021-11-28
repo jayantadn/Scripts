@@ -2,9 +2,12 @@
 try :
     import os
     import configparser
+    import time as tm
     from datetime import *
     import json
     import prettytable 
+    import timeloop
+    import ctypes
 except :
     myassert( False, "Could not import some modules. Use \'pip install <module>\' to install them", True )
 
@@ -18,6 +21,9 @@ config.read('config.ini')
 dbfile = open( config['DEFAULT']['TIMEDB'], 'r' )
 timedb = json.loads( dbfile.read() )
 dbfile.close()    
+
+# Global variables
+tl = timeloop.Timeloop()
 
 # write to database file
 def savedb() :
@@ -103,6 +109,9 @@ def start_timer() :
         }
     timedb[idx]['timestamps'].append(timentry)
     
+    # start sedentary timer
+    tl.start()
+
     # write back
     savedb()
     show_menu()
@@ -121,6 +130,9 @@ def stop_timer() :
                     break
             break
     
+    # start sedentary timer
+    tl.stop()
+
     # write back
     savedb()
     show_menu()
@@ -180,15 +192,18 @@ def show_menu() :
     menu = Menu()
     menu.add( MenuItem( "Start Timer", start_timer ) )
     menu.add( MenuItem( "Stop Timer", stop_timer ) )
-    menu.add( MenuItem( "Refresh", show_stats ) )
     menu.add( MenuItem( "Time Correction", add_correction ) )
     menu.add( MenuItem( "Mark holiday / half day", mark_day ) )
     menu.add( MenuItem( "Show previous records", show_prev_stats ) )
     while True: menu.show()
 
+@tl.job( interval= timedelta( minutes=int(config['DEFAULT']['SEDTIME']) ) )
+def sed_timer() :
+    ctypes.windll.user32.MessageBoxW(0, "Time to take a walk", "Sedentary timer expired", 1)
+    show_menu()
+
 def main() :
-        show_stats()
-        show_menu()
+    show_menu()
 
 if __name__ == "__main__":
     try :
