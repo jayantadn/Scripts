@@ -75,7 +75,7 @@ def show_stats(wk=None) :
             hrs += ( int(entry['correction']) / 60 )
             table.add_row( [ entry['date'], dat.strftime("%a"), entry['workday'], f"{hrs:.2f}" ] )
 
-    exphrs = ndays * float( config['DEFAULT']['DAILYEFFORT'] )
+    exphrs = ( ndays * float( config['DEFAULT']['DAILYEFFORT'] ) ) + float( config['DEFAULT']['CARRYDEFICIT'] )
     acthrs = acttd.seconds/3600
     defhrs = exphrs - acthrs
     clearscr()
@@ -147,6 +147,7 @@ def add_correction() :
         if tod == timedb[i]['date'] :
             timedb[i]['correction'] += int(cor)
     savedb()
+    show_menu()
 
 def mark_day() :
     global config
@@ -164,7 +165,7 @@ def mark_day() :
 
     # get new value and write
     val = int( input( "Enter new value (0, 0.5, 1) : ") )
-    timedb[idx]['workday'] = val
+    timedb[idx-1]['workday'] = val
 
     # save and show menu
     savedb()
