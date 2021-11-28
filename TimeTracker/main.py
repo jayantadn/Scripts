@@ -7,7 +7,7 @@ try :
     import json
     import prettytable 
     import timeloop
-    import ctypes
+    import easygui
 except :
     myassert( False, "Could not import some modules. Use \'pip install <module>\' to install them", True )
 
@@ -192,6 +192,7 @@ def show_menu() :
     menu = Menu()
     menu.add( MenuItem( "Start Timer", start_timer ) )
     menu.add( MenuItem( "Stop Timer", stop_timer ) )
+    menu.add( MenuItem( "Refresh", show_menu ) )
     menu.add( MenuItem( "Time Correction", add_correction ) )
     menu.add( MenuItem( "Mark holiday / half day", mark_day ) )
     menu.add( MenuItem( "Show previous records", show_prev_stats ) )
@@ -199,8 +200,7 @@ def show_menu() :
 
 @tl.job( interval= timedelta( minutes=int(config['DEFAULT']['SEDTIME']) ) )
 def sed_timer() :
-    ctypes.windll.user32.MessageBoxW(0, "Time to take a walk", "Sedentary timer expired", 1)
-    show_menu()
+    easygui.msgbox( "Time to take a walk" )
 
 def main() :
     show_menu()
