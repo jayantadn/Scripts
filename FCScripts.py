@@ -202,10 +202,10 @@ if __name__ == "__main__" :
                 os.rename( file, file.replace("-eng.srt", ".srt") )
 
     elif sys.argv[1] == "PlantUML" :
-        subprocess.call( f"java -jar {PLANTUML} {sys.argv[2]}" ) # FIXME: Check return value
-        (pngfile, ext) = os.path.splitext(sys.argv[2])
-        pngfile += ".png"
-        os.system(f"start {pngfile}") # todo: use subprocess
+        subprocess.call( f"java -jar {PLANTUML} {sys.argv[2]} -o C:/temp" ) # TODO: Check return value
+        (file, ext) = os.path.splitext( os.path.basename( sys.argv[2] ) )
+        pngfile = f"C:\\temp\\{file}.png"
+        os.system(f"start {pngfile}") # FIXME: use subprocess
 
     else :
         myassert(False, "Invalid command")
