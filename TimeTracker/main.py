@@ -110,7 +110,10 @@ def start_timer() :
     timedb[idx]['timestamps'].append(timentry)
     
     # start sedentary timer
-    tl.start()
+    try :
+        tl.start()
+    except RuntimeError :
+        pass # perhaps timer is already started
 
     # write back
     savedb()
@@ -131,7 +134,7 @@ def stop_timer() :
             break
     
     # start sedentary timer
-    tl.stop()
+    #tl.stop()
 
     # write back
     savedb()
@@ -204,6 +207,7 @@ def sed_timer() :
     easygui.msgbox( "Time to take a walk" )
 
 def main() :
+    tl.start()
     show_menu()
 
 if __name__ == "__main__":
