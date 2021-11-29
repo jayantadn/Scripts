@@ -175,7 +175,7 @@ def show_prev_stats() :
     global config
     global timedb
 
-    menu = Menu(show_stats)
+    menu = Menu(show_menu)
     menu.add( MenuItem("Prev") )
     menu.add( MenuItem("Next") )
 
