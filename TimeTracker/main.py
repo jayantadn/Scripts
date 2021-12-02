@@ -79,7 +79,7 @@ def show_stats(wk=None) :
     exphrs = ( ndays * float( config['DEFAULT']['DAILYEFFORT'] ) ) + float( config['DEFAULT']['CARRYDEFICIT'] )
     acthrs = acttd.total_seconds()/3600
     defhrs = exphrs - acthrs
-    # clearscr()
+    clearscr()
     print(table)
     print(f"Deficit hours: {defhrs:.2f}")
     print(f"Timer running: {flgTimerStarted}")
@@ -208,14 +208,14 @@ def show_menu() :
     while True: menu.show()
 
 def sed_timer() :
-    # eta = timedelta( minutes=int(config['DEFAULT']['SEDTIME']) )
-    eta = timedelta( seconds=int(5) )
+    init = minutes=int(config['DEFAULT']['SEDTIME'])
+    eta = timedelta( init )
     while not stop_sed :
         tm.sleep(1)
         eta -= timedelta(seconds=1)
         if eta.total_seconds() <= 0 :
             easygui.msgbox( "Time to take a walk" )
-            eta = timedelta( seconds=int(5) )
+            eta = timedelta( init )
 
 def main() :
     th_main = threading.Thread( target=show_menu )
