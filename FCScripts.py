@@ -202,6 +202,7 @@ if __name__ == "__main__" :
                 os.rename( file, file.replace("-eng.srt", ".srt") )
 
     elif sys.argv[1] == "PlantUML" :
+        print(sys.argv[2])
         subprocess.call( f"java -jar {PLANTUML} {sys.argv[2]} -o C:/temp" ) # TODO: Check return value
         (file, ext) = os.path.splitext( os.path.basename( sys.argv[2] ) )
         pngfile = f"C:\\temp\\{file}.png"

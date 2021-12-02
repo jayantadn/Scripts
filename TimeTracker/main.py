@@ -76,7 +76,7 @@ def show_stats(wk=None) :
             table.add_row( [ entry['date'], dat.strftime("%a"), entry['workday'], f"{hrs:.2f}" ] )
 
     exphrs = ( ndays * float( config['DEFAULT']['DAILYEFFORT'] ) ) + float( config['DEFAULT']['CARRYDEFICIT'] )
-    acthrs = acttd.seconds/3600
+    acthrs = acttd.total_seconds()/3600
     defhrs = exphrs - acthrs
     clearscr()
     print(table)
