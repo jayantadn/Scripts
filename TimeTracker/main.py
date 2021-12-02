@@ -6,12 +6,12 @@ try :
     from datetime import *
     import json
     import prettytable 
-    import timeloop
     import easygui
 except :
     myassert( False, "Could not import some modules. Use \'pip install <module>\' to install them", True )
 
 # import internal modules
+import threading
 from Menu import *
 from Utils import *
 
@@ -23,7 +23,8 @@ timedb = json.loads( dbfile.read() )
 dbfile.close()    
 
 # Global variables
-tl = timeloop.Timeloop()
+th_sed = None
+stop_sed = False
 
 # write to database file
 def savedb() :
@@ -78,7 +79,7 @@ def show_stats(wk=None) :
     exphrs = ( ndays * float( config['DEFAULT']['DAILYEFFORT'] ) ) + float( config['DEFAULT']['CARRYDEFICIT'] )
     acthrs = acttd.total_seconds()/3600
     defhrs = exphrs - acthrs
-    clearscr()
+    # clearscr()
     print(table)
     print(f"Deficit hours: {defhrs:.2f}")
     print(f"Timer running: {flgTimerStarted}")
@@ -109,11 +110,14 @@ def start_timer() :
         }
     timedb[idx]['timestamps'].append(timentry)
     
-    # start sedentary timer
-    try :
-        tl.start()
-    except RuntimeError :
-        pass # perhaps timer is already started
+    # start sedentary timer if not started
+    global th_sed
+    if not th_sed.is_alive() :
+        print( "Timer is not running" )
+        th_sed = threading.Thread( target=sed_timer, daemon=True )
+        global stop_sed
+        stop_sed = False
+        th_sed.start()
 
     # write back
     savedb()
@@ -133,8 +137,9 @@ def stop_timer() :
                     break
             break
     
-    # start sedentary timer
-    #tl.stop()
+    # stop sedentary timer
+    global stop_sed
+    stop_sed = True
 
     # write back
     savedb()
@@ -202,20 +207,30 @@ def show_menu() :
     menu.add( MenuItem( "Show previous records", show_prev_stats ) )
     while True: menu.show()
 
-@tl.job( interval= timedelta( minutes=int(config['DEFAULT']['SEDTIME']) ) )
 def sed_timer() :
-    easygui.msgbox( "Time to take a walk" )
+    # eta = timedelta( minutes=int(config['DEFAULT']['SEDTIME']) )
+    eta = timedelta( seconds=int(5) )
+    while not stop_sed :
+        tm.sleep(1)
+        eta -= timedelta(seconds=1)
+        if eta.total_seconds() <= 0 :
+            easygui.msgbox( "Time to take a walk" )
+            eta = timedelta( seconds=int(5) )
 
 def main() :
-    tl.start()
-    show_menu()
+    th_main = threading.Thread( target=show_menu )
+    th_main.start()
+
+    global th_sed
+    th_sed = threading.Thread( target=sed_timer, daemon=True )
+    th_sed.start()
+
+    th_main.join()
 
 if __name__ == "__main__":
     try :
         main()
-    except SystemExit :
-        pass
-    except KeyboardInterrupt :
+    except (SystemExit, KeyboardInterrupt) as e :
         pass
     except:
         myassert( False, "An exception has occurred.", True )            
