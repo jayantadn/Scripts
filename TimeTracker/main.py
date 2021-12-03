@@ -91,9 +91,15 @@ def start_timer() :
     # modify contents
     tod = datetime.today().strftime("%Y-%m-%d")
     idx = None
+    flgTimerStarted = False
     for i in range( len(timedb) ) :
         if tod == timedb[i]['date'] :
             idx = i
+            # Check if timer is already started
+            for timestamp in timedb[i]['timestamps'] :
+                if timestamp['start'] is not None and timestamp['end'] is None :
+                    flgTimerStarted = True
+                    break
             break
     if idx is None :
         datentry =     {
@@ -104,11 +110,12 @@ def start_timer() :
         }
         idx = len(timedb)
         timedb.append(datentry)
-    timentry = {
-          "start": datetime.now().strftime("%H:%M:%S"),
-          "end": None
-        }
-    timedb[idx]['timestamps'].append(timentry)
+    if not flgTimerStarted :
+        timentry = {
+            "start": datetime.now().strftime("%H:%M:%S"),
+            "end": None
+            }
+        timedb[idx]['timestamps'].append(timentry)
     
     # start sedentary timer if not started
     global th_sed
