@@ -208,14 +208,14 @@ def show_menu() :
     while True: menu.show()
 
 def sed_timer() :
-    init = minutes=int(config['DEFAULT']['SEDTIME'])
-    eta = timedelta( init )
+    init = int(config['DEFAULT']['SEDMINS'])
+    eta = timedelta( minutes=init )
     while not stop_sed :
         tm.sleep(1)
         eta -= timedelta(seconds=1)
         if eta.total_seconds() <= 0 :
             easygui.msgbox( "Time to take a walk" )
-            eta = timedelta( init )
+            eta = timedelta( minutes=init )
 
 def main() :
     th_main = threading.Thread( target=show_menu )
