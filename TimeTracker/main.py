@@ -7,11 +7,11 @@ try :
     import json
     import prettytable 
     import easygui
+    import threading
 except :
     myassert( False, "Could not import some modules. Use \'pip install <module>\' to install them", True )
 
 # import internal modules
-import threading
 from Menu import *
 from Utils import *
 
