@@ -36,3 +36,5 @@ class Menu :
                 this.Itemlist[choice-1].Func()
         return choice
             
+    def getstr(self, itemidx) :
+        return self.Itemlist[itemidx].Txt

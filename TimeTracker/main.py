@@ -180,7 +180,9 @@ def mark_day() :
 
     # get new value and write
     val = int( input( "Enter new value (0, 0.5, 1) : ") )
-    timedb[idx-1]['workday'] = val
+    for i in range( len(timedb) ) :
+        if menu.getstr(idx-1) == timedb[i]['date'] :
+            timedb[i]['workday'] = int(val)
 
     # save and show menu
     savedb()
