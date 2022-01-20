@@ -179,10 +179,10 @@ def mark_day() :
     idx = menu.show()
 
     # get new value and write
-    val = int( input( "Enter new value (0, 0.5, 1) : ") )
+    val = float( input( "Enter new value (0, 0.5, 1) : ") )
     for i in range( len(timedb) ) :
         if menu.getstr(idx-1) == timedb[i]['date'] :
-            timedb[i]['workday'] = int(val)
+            timedb[i]['workday'] = val
 
     # save and show menu
     savedb()
