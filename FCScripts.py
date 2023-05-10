@@ -95,10 +95,11 @@ def CopyPath(filelist) :
     # rest of the function dont change
     unorglist = []
     for file in filelist :
-        unorglist.append( os.path.basename(file) )
         unorglist.append( file )
         unorglist.append( file.replace("\\", "\\\\") )
-        unorglist.append( file.replace("\\", "/") )
+        file_posix = file.replace("\\", "/")
+        unorglist.append( file_posix )
+        unorglist.append( file_posix.replace("C:", "/mnt/c") ) # WSL
         try :
             unorglist.append( win32wnet.WNetGetUniversalName(file,1) )
         except :
