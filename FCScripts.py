@@ -5,9 +5,9 @@
 
 # Office Configuration
 ZIP = "C:\\Program Files\\7-Zip\\7zG.exe"
-BUPDIR = "C:\\DATA\\OneDrive - Robert Bosch GmbH\\Backup"
+BUPDIR = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Backup"
 OUTLOOK = "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
-PLANTUML = "C:\\Tools\\ProgramFiles\\PlantUML\\plantuml-1.2021.14.jar"
+PLANTUML = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Software_Win\\PlantUML\\plantuml-1.2023.5.jar"
 
 # A custom assert implementation
 def myassert(expr, msg) :
@@ -95,10 +95,11 @@ def CopyPath(filelist) :
     # rest of the function dont change
     unorglist = []
     for file in filelist :
-        unorglist.append( os.path.basename(file) )
         unorglist.append( file )
         unorglist.append( file.replace("\\", "\\\\") )
-        unorglist.append( file.replace("\\", "/") )
+        file_posix = file.replace("\\", "/")
+        unorglist.append( file_posix )
+        unorglist.append( file_posix.replace("C:", "/mnt/c") ) # WSL
         try :
             unorglist.append( win32wnet.WNetGetUniversalName(file,1) )
         except :
@@ -117,7 +118,7 @@ def CopyPath(filelist) :
         i += 1
 
     # display menu
-    i = 0
+    i = 1
     for item in orglist :
         print( i, item[0], end="" )
         if len(item) > 1 :
@@ -126,7 +127,7 @@ def CopyPath(filelist) :
             print("")
         i += 1
     print( "Enter your choice: " )
-    idx = int( msvcrt.getch() )
+    idx = int( msvcrt.getch() ) - 1
     
     # copy to clipboard
     txt = ""
