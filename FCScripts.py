@@ -203,9 +203,14 @@ if __name__ == "__main__" :
                 os.rename( file, file.replace("-eng.srt", ".srt") )
 
     elif sys.argv[1] == "PlantUML" :
-        subprocess.call( f"java -jar {PLANTUML} {filelist[0]} -o C:/Users/{os.environ['USERNAME']}/Downloads" )
+        subprocess.call(
+            f'java -jar "{PLANTUML}" {filelist[0]} -o C:/Users/{os.environ["USERNAME"]}/Downloads')
         f = open( filelist[0], "r" )
-        pngfile =  f.readline().split(' ')[1].rstrip()
+        firstline = f.readline().split(' ')
+        if len(firstline) > 1:
+            pngfile = firstline[1].rstrip()
+        else:
+            pngfile = os.path.basename(filelist[0]).split('.')[0]
         f.close()
         pngfile = f"C:\\Users\\{os.environ['USERNAME']}\\Downloads\\{pngfile}.png"
         os.system(f"start {pngfile}") # FIXME: subprocess is not working
