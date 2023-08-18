@@ -176,12 +176,18 @@ if __name__ == "__main__" :
         CopyPath(filelist)
 
     elif sys.argv[1] == "Email" :
+        print(filelist)
         if len(filelist) > 1 or filelist[0].endswith(".bat") :
             filename = Compress( filelist )
         else :
             filename = filelist[0]
         try :
-            ret = subprocess.call( OUTLOOK + " /c ipm.note /m ?subject=" + os.path.basename(filename) + " /a " + filename )
+            # ret = subprocess.call( OUTLOOK + " /c ipm.note /m ?subject=" + os.path.basename(filename) + " /a " + filename )
+            filename_new = os.path.join(
+                os.environ['temp'], os.path.basename(filename).replace(' ', '_'))
+            shutil.copyfile(filename, filename_new)
+            ret = subprocess.call(OUTLOOK + " /c ipm.note /m ?subject=" +
+                                  os.path.basename(filename_new) + " /a " + filename_new)
             if filename.endswith(".zip") :
                 time.sleep(1)
                 os.remove(filename)
