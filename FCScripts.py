@@ -62,8 +62,16 @@ def Uncompress(zipfile) :
         outdir = os.path.join( outdir, os.path.basename(zipfile).split(".")[0] )
 
     try :
+        flg_delete = False
+        if zipfile.find(".tar.") != -1:
+            ret = subprocess.call([ZIP, "x", zipfile, "-o" + outdir, "-y"])
+            myassert(ret == 0, "Could not extract archive")
+            zipfile, _ = os.path.splitext(zipfile)
+            flg_delete = True
         ret = subprocess.call( [ ZIP, "x", zipfile, "-o" + outdir, "-y" ] )
         myassert( ret == 0, "Could not extract archive" )
+        if flg_delete:
+            os.unlink(zipfile)
     except :
         myassert( False, "Could not extract archive" )
 
