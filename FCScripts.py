@@ -5,9 +5,9 @@
 
 # Office Configuration
 ZIP = "C:\\Program Files\\7-Zip\\7zG.exe"
-BUPDIR = "C:\\DATA\\OneDrive - Robert Bosch GmbH\\Backup"
+BUPDIR = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Backup"
 OUTLOOK = "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
-PLANTUML = "C:\\Tools\\ProgramFiles\\PlantUML\\plantuml-1.2021.14.jar"
+PLANTUML = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Software_Win\\PlantUML\\plantuml-1.2023.5.jar"
 
 # A custom assert implementation
 def myassert(expr, msg) :
@@ -62,8 +62,16 @@ def Uncompress(zipfile) :
         outdir = os.path.join( outdir, os.path.basename(zipfile).split(".")[0] )
 
     try :
+        flg_delete = False
+        if zipfile.find(".tar.") != -1:
+            ret = subprocess.call([ZIP, "x", zipfile, "-o" + outdir, "-y"])
+            myassert(ret == 0, "Could not extract archive")
+            zipfile, _ = os.path.splitext(zipfile)
+            flg_delete = True
         ret = subprocess.call( [ ZIP, "x", zipfile, "-o" + outdir, "-y" ] )
         myassert( ret == 0, "Could not extract archive" )
+        if flg_delete:
+            os.unlink(zipfile)
     except :
         myassert( False, "Could not extract archive" )
 
@@ -118,7 +126,7 @@ def CopyPath(filelist) :
         i += 1
 
     # display menu
-    i = 0
+    i = 1
     for item in orglist :
         print( i, item[0], end="" )
         if len(item) > 1 :
@@ -127,7 +135,7 @@ def CopyPath(filelist) :
             print("")
         i += 1
     print( "Enter your choice: " )
-    idx = int( msvcrt.getch() )
+    idx = int( msvcrt.getch() ) - 1
     
     # copy to clipboard
     txt = ""
@@ -176,12 +184,18 @@ if __name__ == "__main__" :
         CopyPath(filelist)
 
     elif sys.argv[1] == "Email" :
+        print(filelist)
         if len(filelist) > 1 or filelist[0].endswith(".bat") :
             filename = Compress( filelist )
         else :
             filename = filelist[0]
         try :
-            ret = subprocess.call( OUTLOOK + " /c ipm.note /m ?subject=" + os.path.basename(filename) + " /a " + filename )
+            # ret = subprocess.call( OUTLOOK + " /c ipm.note /m ?subject=" + os.path.basename(filename) + " /a " + filename )
+            filename_new = os.path.join(
+                os.environ['temp'], os.path.basename(filename).replace(' ', '_'))
+            shutil.copyfile(filename, filename_new)
+            ret = subprocess.call(OUTLOOK + " /c ipm.note /m ?subject=" +
+                                  os.path.basename(filename_new) + " /a " + filename_new)
             if filename.endswith(".zip") :
                 time.sleep(1)
                 os.remove(filename)
@@ -203,9 +217,14 @@ if __name__ == "__main__" :
                 os.rename( file, file.replace("-eng.srt", ".srt") )
 
     elif sys.argv[1] == "PlantUML" :
-        subprocess.call( f"java -jar {PLANTUML} {filelist[0]} -o C:/Users/{os.environ['USERNAME']}/Downloads" )
+        subprocess.call(
+            f'java -jar "{PLANTUML}" {filelist[0]} -o C:/Users/{os.environ["USERNAME"]}/Downloads')
         f = open( filelist[0], "r" )
-        pngfile =  f.readline().split(' ')[1].rstrip()
+        firstline = f.readline().split(' ')
+        if len(firstline) > 1:
+            pngfile = firstline[1].rstrip()
+        else:
+            pngfile = os.path.basename(filelist[0]).split('.')[0]
         f.close()
         pngfile = f"C:\\Users\\{os.environ['USERNAME']}\\Downloads\\{pngfile}.png"
         os.system(f"start {pngfile}") # FIXME: subprocess is not working
