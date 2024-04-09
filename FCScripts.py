@@ -20,7 +20,7 @@ if platform.system() == "Windows":
 ZIP = "C:\\Program Files\\7-Zip\\7zG.exe"
 BUPDIR = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Backup"
 OUTLOOK = "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
-PLANTUML = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Software_Win\\PlantUML\\plantuml-1.2023.5.jar"
+PLANTUML = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Software_Win\\PlantUML\\plantuml-gplv2-1.2024.4.jar"
 
 # A custom assert implementation
 
@@ -245,8 +245,8 @@ if __name__ == "__main__":
                 os.rename(file, file.replace("-eng.srt", ".srt"))
 
     elif sys.argv[1] == "PlantUML":
-        subprocess.call(
-            f'java -jar "{PLANTUML}" {filelist[0]} -o C:/Users/{os.environ["USERNAME"]}/Downloads')
+        cmd = f'java -jar "{PLANTUML}" "{filelist[0]}" -o C:/Users/{os.environ["USERNAME"]}/Downloads'
+        subprocess.call(cmd)
         f = open(filelist[0], "r")
         firstline = f.readline().split(' ')
         if len(firstline) > 1:
