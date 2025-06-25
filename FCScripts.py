@@ -18,9 +18,9 @@ if platform.system() == "Windows":
 
 
 ZIP = "C:\\Program Files\\7-Zip\\7zG.exe"
-BUPDIR = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Backup"
+BUPDIR = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Main\\Backup"
 OUTLOOK = "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
-PLANTUML = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Software_Win\\PlantUML\\plantuml-gplv2-1.2024.4.jar"
+PLANTUML = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Main\\Software_Win\\PlantUML\\plantuml-gplv2-1.2024.4.jar"
 
 # A custom assert implementation
 
@@ -213,7 +213,7 @@ if __name__ == "__main__":
 
     elif sys.argv[1] == "Email":
         print(filelist)
-        if len(filelist) > 1 or filelist[0].endswith(".bat"):
+        if len(filelist) > 1 or filelist[0].endswith(".bat") or (len(filelist) == 1 and os.path.isdir(filelist[0])):
             filename = Compress(filelist)
         else:
             filename = filelist[0]
