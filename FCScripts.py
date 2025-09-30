@@ -20,7 +20,7 @@ if platform.system() == "Windows":
 ZIP = "C:\\Program Files\\7-Zip\\7zG.exe"
 BUPDIR = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Main\\Backup"
 OUTLOOK = "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
-PLANTUML = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Main\\Software_Win\\PlantUML\\plantuml-gplv2-1.2024.4.jar"
+PLANTUML = "C:\\Users\\jyd1kor\\OneDrive - Bosch Group\\Main\\Software_Win\\PlantUML\\plantuml-1.2025.7.jar"
 
 # A custom assert implementation
 
@@ -245,17 +245,28 @@ if __name__ == "__main__":
                 os.rename(file, file.replace("-eng.srt", ".srt"))
 
     elif sys.argv[1] == "PlantUML":
+        # Check Java version before executing
+        try:
+            java_version_output = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT, text=True)
+            # Extract version number from output like "java version "21.0.1"" or "openjdk version "19.0.2""
+            import re
+            version_match = re.search(r'version "(\d+)\.?(\d*)', java_version_output)
+            if version_match:
+                major_version = int(version_match.group(1))
+                if major_version <= 18:
+                    myassert(False, f"Java version {major_version} is too old. Minimum required version is 19. Please update Java.")
+            else:
+                myassert(False, "Could not determine Java version")
+        except subprocess.CalledProcessError:
+            myassert(False, "Java is not installed or not in PATH")
+        except FileNotFoundError:
+            myassert(False, "Java is not installed or not in PATH")
+        
         cmd = f'java -jar "{PLANTUML}" "{filelist[0]}" -o C:/Users/{os.environ["USERNAME"]}/Downloads'
         subprocess.call(cmd)
-        f = open(filelist[0], "r")
-        firstline = f.readline().split(' ')
-        if len(firstline) > 1:
-            pngfile = firstline[1].rstrip()
-        else:
-            pngfile = os.path.basename(filelist[0]).split('.')[0]
-        f.close()
+        pngfile = os.path.splitext(os.path.basename(filelist[0]))[0]
         pngfile = f"C:\\Users\\{os.environ['USERNAME']}\\Downloads\\{pngfile}.png"
-        os.system(f"start {pngfile}")  # FIXME: subprocess is not working
+        os.system(f"start {pngfile}")
 
     else:
         myassert(False, "Invalid command")
