@@ -262,10 +262,12 @@ if __name__ == "__main__":
         except FileNotFoundError:
             myassert(False, "Java is not installed or not in PATH")
         
-        cmd = f'java -jar "{PLANTUML}" "{filelist[0]}" -o C:/Users/{os.environ["USERNAME"]}/Downloads'
+        # Get the directory of the input file
+        outdir = os.path.dirname(filelist[0])
+        cmd = f'java -jar "{PLANTUML}" "{filelist[0]}" -o "{outdir}"'
         subprocess.call(cmd)
         pngfile = os.path.splitext(os.path.basename(filelist[0]))[0]
-        pngfile = f"C:\\Users\\{os.environ['USERNAME']}\\Downloads\\{pngfile}.png"
+        pngfile = os.path.join(outdir, f"{pngfile}.png")
         os.system(f"start {pngfile}")
 
     else:
