@@ -268,7 +268,7 @@ if __name__ == "__main__":
         subprocess.call(cmd)
         pngfile = os.path.splitext(os.path.basename(filelist[0]))[0]
         pngfile = os.path.join(outdir, f"{pngfile}.png")
-        os.system(f"start {pngfile}")
+        os.system(f'start "" "{pngfile}"')
 
     else:
         myassert(False, "Invalid command")
